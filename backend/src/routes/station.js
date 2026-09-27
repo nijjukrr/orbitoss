@@ -12,9 +12,40 @@ router.get('/', async (_req, res, next) => {
         FROM station_modules m LEFT JOIN LATERAL (
           SELECT * FROM station_telemetry WHERE module_id=m.module_id ORDER BY recorded_at DESC LIMIT 1
         ) t ON true ORDER BY m.code`),
-      query('SELECT name, unit, current_quantity, capacity, round(current_quantity/capacity*100,1) AS percentage FROM resources ORDER BY name')
+      query('SELECT * FROM v_station_resource_status')
     ]);
-    res.json({ station: station.rows[0], modules: modules.rows, resources: resources.rows });
+    res.json({
+      success: true,
+      data: {
+        station: station.rows[0],
+        modules: modules.rows,
+        resources: resources.rows
+      }
+    });
   } catch (error) { next(error); }
 });
+
+router.get('/modules', async (_req, res, next) => {
+  try {
+    const modules = await query(`
+      SELECT m.*, t.temperature_c, t.pressure_kpa, t.oxygen_pct, t.co2_pct, t.power_kw, t.recorded_at AS telemetry_time
+      FROM station_modules m LEFT JOIN LATERAL (
+        SELECT * FROM station_telemetry WHERE module_id=m.module_id ORDER BY recorded_at DESC LIMIT 1
+      ) t ON true ORDER BY m.code
+    `);
+    res.json({ success: true, data: modules.rows });
+  } catch (error) { next(error); }
+});
+
+router.get('/telemetry', async (_req, res, next) => {
+  try {
+    const telemetry = await query(`
+      SELECT st.*, m.code AS module_code, m.name AS module_name
+      FROM station_telemetry st JOIN station_modules m ON m.module_id = st.module_id
+      ORDER BY st.recorded_at DESC LIMIT 100
+    `);
+    res.json({ success: true, data: telemetry.rows });
+  } catch (error) { next(error); }
+});
+
 export default router;
