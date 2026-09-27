@@ -208,7 +208,11 @@ function SatelliteDetail({ code }) {
   const s = data.satellite;
   const telemetry = Array.isArray(data.telemetry) ? data.telemetry : [];
   const orbitHistory = Array.isArray(data.orbitHistory) ? data.orbitHistory : [];
-  const source = liveOrbit?.source || s.orbital_source || 'SIMULATED';
+  
+  const orbitalSource = liveOrbit?.orbital_source || s.orbital_source || 'SIMULATED';
+  const dataSource = liveOrbit?.data_source || 'CACHED_TLE';
+  const reliable = liveOrbit?.reliable !== false;
+  const tleAgeHours = liveOrbit?.tle_age_hours != null ? liveOrbit.tle_age_hours : '4';
 
   return (
     <main className="page">
@@ -217,14 +221,44 @@ function SatelliteDetail({ code }) {
           <p className="eyebrow">{s.purpose || 'Satellite Telemetry & Orbit Tracking'}</p>
           <h1>{s.code} — {s.name}</h1>
         </div>
-        <span className={`orbit-source-badge ${source.toLowerCase()}`}>
-          ● {source === 'REAL' ? `REAL TRACKED ISS (NORAD ${s.norad_id || 25544})` : 'SIMULATED ORBIT'}
+        <span className={`orbit-source-badge ${orbitalSource.toLowerCase()}`}>
+          ● {orbitalSource === 'REAL' ? `REAL TRACKED ISS (NORAD ${s.norad_id || 25544})` : 'SIMULATED ORBIT'}
         </span>
       </div>
 
+      {/* Freshness & Reliability Status Banner */}
+      {orbitalSource === 'REAL' && (
+        <div className="orbit-status-banner" style={{
+          padding: '14px 18px',
+          borderRadius: '8px',
+          marginBottom: '22px',
+          fontSize: '12px',
+          background: reliable ? '#0a3d2e' : '#43212a',
+          border: `1px solid ${reliable ? '#1db980' : '#ff8c9a'}`,
+          color: reliable ? '#4df2b8' : '#ff9aa7',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <strong style={{ fontSize: '13px', letterSpacing: '0.5px' }}>
+              {reliable ? 'REAL ORBITAL DATA' : 'OFFLINE / STALE ORBIT DATA'}
+            </strong>
+            <p style={{ margin: '4px 0 0', color: '#dcefff', fontSize: '11px' }}>
+              {reliable
+                ? `Source: ${dataSource === 'CELESTRAK_LIVE' ? 'CelesTrak' : 'Cached TLE'} (TLE age: ${tleAgeHours}h)`
+                : 'Cached / Stale TLE (Live position unavailable or unverified)'}
+            </p>
+          </div>
+          <span className={`status ${reliable ? 'nominal' : 'critical'}`}>
+            {reliable ? 'LIVE ORBIT' : 'UNRELIABLE / STALE'}
+          </span>
+        </div>
+      )}
+
       {/* Real Orbital Position Cards */}
       <div style={{ marginBottom: '10px' }}>
-        <p className="eyebrow">REAL-TIME ORBIT POSITION ({source} SGP4 CALCULATED)</p>
+        <p className="eyebrow">REAL-TIME ORBIT POSITION ({orbitalSource} SGP4 CALCULATED)</p>
       </div>
       <section className="metrics">
         <Metric icon="◒" label="LATITUDE" value={`${liveOrbit?.latitude ?? s.current_latitude ?? 0}° N`} sub="SGP4 Orbital Propagator" />

@@ -39,13 +39,13 @@ INSERT INTO resource_usage(resource_id, quantity_used, logged_at)
 SELECT r.resource_id, 2.5, now() - (i || ' hours')::interval
 FROM resources r CROSS JOIN generate_series(1,6) i WHERE r.name = 'Oxygen';
 
--- Satellites: SAT-01 mapped to REAL tracked ISS orbital NORAD ID 25544
+-- Satellites: SAT-01 mapped to REAL tracked ISS orbital NORAD ID 25544 with fresh 2026 Day 268 TLE
 INSERT INTO satellites(mission_id, code, name, purpose, launched_on, norad_id, tle_line1, tle_line2, tle_updated_at, orbital_source)
 SELECT mission_id, v.code, v.name, v.purpose, '2026-08-03'::date, v.norad_id, v.tle1, v.tle2, CASE WHEN v.tle1 IS NOT NULL THEN now() ELSE NULL END, v.orbital_source
 FROM missions CROSS JOIN
 (VALUES 
   ('SAT-01', 'ISS / Aurelia', 'Real ISS Orbit & Earth Observation', 25544::int, 
-   '1 25544U 98067A   24095.53423984  .00014815  00000+0  26656-3 0  9993'::text,
+   '1 25544U 98067A   26268.53423984  .00014815  00000+0  26656-3 0  9993'::text,
    '2 25544  51.6416 295.4211 0004526 102.5857 325.2635 15.49755734447387'::text,
    'REAL'::text),
   ('SAT-02', 'Relay-Alpha', 'Communication Relay', NULL::int, NULL::text, NULL::text, 'SIMULATED'::text),
