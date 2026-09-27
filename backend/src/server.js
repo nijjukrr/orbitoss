@@ -1,0 +1,30 @@
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import dashboard from './routes/dashboard.js';
+import satellites from './routes/satellites.js';
+import alerts from './routes/alerts.js';
+import commands from './routes/commands.js';
+import simulator from './routes/simulator.js';
+import station from './routes/station.js';
+import crew from './routes/crew.js';
+import experiments from './routes/experiments.js';
+import groundStations from './routes/groundStations.js';
+
+const app = express();
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+app.use(express.json());
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'orbitops-api' }));
+app.use('/api/dashboard', dashboard);
+app.use('/api/satellites', satellites);
+app.use('/api/alerts', alerts);
+app.use('/api/commands', commands);
+app.use('/api/simulator', simulator);
+app.use('/api/station', station);
+app.use('/api/crew', crew);
+app.use('/api/experiments', experiments);
+app.use('/api/ground-stations', groundStations);
+app.use((error, _req, res, _next) => { console.error(error); res.status(500).json({ message: 'Internal server error' }); });
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`ORBITOPS API listening on http://localhost:${port}`));
