@@ -4,60 +4,55 @@ import { Rocket, Sparkles, Orbit, ShieldCheck, Activity, ChevronDown } from 'luc
 export function HeroSection({ onEnterConsole }) {
   return (
     <section style={{
-      minHeight: '85vh',
+      minHeight: '90vh',
       position: 'relative',
       borderRadius: '24px',
       overflow: 'hidden',
-      border: '1px solid rgba(56, 189, 248, 0.25)',
-      background: 'radial-gradient(circle at 50% 25%, rgba(14, 165, 233, 0.18) 0%, rgba(3, 7, 18, 0.98) 75%)',
-      padding: '4rem 3rem',
+      border: '1px solid rgba(56, 189, 248, 0.3)',
+      backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.45) 0%, rgba(3, 7, 18, 0.85) 60%, rgba(3, 7, 18, 0.98) 100%), url("/media/nasa/iss-hero.jpg")',
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      padding: '4rem 3.5rem',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      boxShadow: '0 30px 80px rgba(0, 0, 0, 0.7), inset 0 0 50px rgba(56, 189, 248, 0.08)',
+      boxShadow: '0 30px 90px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.9)',
       marginBottom: '3rem'
     }}>
-      {/* Background Orbital Line Accents */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: 'radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 0)',
-        backgroundSize: '28px 28px',
-        opacity: 0.5,
-        pointerEvents: 'none'
-      }} />
-
-      {/* Top Mission Chip */}
+      {/* Top Mission Tag */}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
-          padding: '6px 16px',
-          borderRadius: '20px',
-          background: 'rgba(56, 189, 248, 0.1)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
+          padding: '8px 18px',
+          borderRadius: '30px',
+          background: 'rgba(3, 7, 18, 0.75)',
+          border: '1px solid rgba(56, 189, 248, 0.4)',
           color: '#38bdf8',
           fontSize: '11px',
           fontFamily: 'monospace',
           fontWeight: 700,
-          letterSpacing: '1px'
+          letterSpacing: '1.5px',
+          backdropFilter: 'blur(8px)'
         }}>
           <Sparkles size={14} />
-          <span>ORBITOPS MISSION OR-26 · LIVE SPACE OPERATIONS</span>
+          <span>ORBITOPS MISSION CONTROL · NASA ISS ORBITAL TELEMETRY</span>
         </div>
       </div>
 
-      {/* Huge SpaceX-Style Hero Typography */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px', margin: '2rem 0' }}>
+      {/* SpaceX-Style Fullscreen Bold Typography */}
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '950px', margin: '2rem 0' }}>
         <h1 style={{
           margin: 0,
-          fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
-          fontWeight: 800,
-          letterSpacing: '-1.5px',
-          color: '#f8fafc',
-          lineHeight: 1.05,
-          textTransform: 'uppercase'
+          fontSize: 'clamp(3rem, 6.5vw, 5rem)',
+          fontWeight: 900,
+          letterSpacing: '-2px',
+          color: '#ffffff',
+          lineHeight: 1.02,
+          textTransform: 'uppercase',
+          textShadow: '0 10px 30px rgba(0,0,0,0.8)'
         }}>
           Space Operations<br />
           <span style={{
@@ -70,72 +65,78 @@ export function HeroSection({ onEnterConsole }) {
         </h1>
 
         <p style={{
-          color: '#94a3b8',
-          fontSize: '1.15rem',
+          color: '#cbd5e1',
+          fontSize: '1.2rem',
           maxWidth: '680px',
-          marginTop: '1.25rem',
+          marginTop: '1.5rem',
           lineHeight: 1.6,
-          fontWeight: 400
+          fontWeight: 400,
+          textShadow: '0 2px 10px rgba(0,0,0,0.8)'
         }}>
-          Integrated real-time ISS orbital mechanics, SGP4 propagators, CelesTrak TLE feeds, PostgreSQL stored procedures, and live space station environmental telemetry.
+          Real-time ISS orbital mechanics, SGP4 kinematics, CelesTrak live TLE feeds, PostgreSQL stored triggers, and space station habitat telemetry.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
           <button
             onClick={onEnterConsole}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.75rem',
-              padding: '1.1rem 2.25rem',
+              gap: '0.85rem',
+              padding: '1.25rem 2.5rem',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
               border: 'none',
               color: '#fff',
-              fontSize: '1rem',
+              fontSize: '1.05rem',
               fontWeight: 800,
               letterSpacing: '0.5px',
               cursor: 'pointer',
-              boxShadow: '0 12px 30px rgba(2, 132, 199, 0.4)',
+              boxShadow: '0 15px 35px rgba(2, 132, 199, 0.5)',
               transition: 'all 0.25s ease'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
             <Rocket size={20} /> Enter Mission Control
           </button>
         </div>
       </div>
 
-      {/* Bottom Telemetry Floating Overlay */}
+      {/* Floating Telemetry Overlay */}
       <div style={{
         position: 'relative',
         zIndex: 1,
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '1.25rem',
-        borderTop: '1px solid rgba(56, 189, 248, 0.15)',
-        paddingTop: '1.5rem'
+        gap: '1.5rem',
+        background: 'rgba(3, 7, 18, 0.75)',
+        border: '1px solid rgba(56, 189, 248, 0.2)',
+        padding: '1.25rem 1.75rem',
+        borderRadius: '16px',
+        backdropFilter: 'blur(12px)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <Orbit size={24} style={{ color: '#38bdf8' }} />
           <div>
-            <small style={{ display: 'block', fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>ORBIT MECHANICS</small>
-            <b style={{ fontSize: '13px', color: '#f8fafc' }}>SGP4 Propagator (2026 TLE)</b>
+            <small style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>REAL ISS ORBIT</small>
+            <b style={{ fontSize: '14px', color: '#ffffff' }}>SGP4 Kinematics (NORAD 25544)</b>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <ShieldCheck size={24} style={{ color: '#34d399' }} />
           <div>
-            <small style={{ display: 'block', fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>DATABASE CORE</small>
-            <b style={{ fontSize: '13px', color: '#f8fafc' }}>PostgreSQL Neon Cloud</b>
+            <small style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>DATABASE ENGINE</small>
+            <b style={{ fontSize: '14px', color: '#ffffff' }}>PostgreSQL Neon Cloud DB</b>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <Activity size={24} style={{ color: '#c084fc' }} />
           <div>
-            <small style={{ display: 'block', fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>LIVE ALTITUDE</small>
-            <b style={{ fontSize: '13px', color: '#f8fafc' }}>~420 km Geodetic ISS</b>
+            <small style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>ORBIT ALTITUDE</small>
+            <b style={{ fontSize: '14px', color: '#ffffff' }}>~420 km Geodetic ISS</b>
           </div>
         </div>
       </div>

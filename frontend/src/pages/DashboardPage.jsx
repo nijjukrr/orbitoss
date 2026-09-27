@@ -12,9 +12,7 @@ import {
   Clock,
   Building2,
   FlaskConical,
-  Terminal,
-  Layers,
-  ChevronDown
+  Eye
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { HeroSection } from '../components/layout/HeroSection.jsx';
@@ -56,17 +54,17 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
   const events = Array.isArray(data?.events) ? data.events : [];
 
   return (
-    <div style={{ display: 'grid', gap: '3rem' }}>
-      {/* SECTION 1: SPACEX-STYLE CINEMATIC HERO */}
+    <div style={{ display: 'grid', gap: '3.5rem' }}>
+      {/* SECTION 1: FULLSCREEN ISS HERO */}
       <HeroSection onEnterConsole={() => onSelectTab && onSelectTab('Station')} />
 
-      {/* SECTION 2: LIVE MISSION KPI OVERLAY */}
+      {/* SECTION 2: LIVE MISSION KPI METRICS */}
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
-          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px' }}>
             SECTION 01 · SYSTEM METRICS
           </p>
-          <h2 style={{ margin: '4px 0 0', fontSize: '1.75rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
+          <h2 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 900, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
             Live Operations Overview
           </h2>
         </div>
@@ -79,22 +77,25 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
         </div>
       </div>
 
-      {/* SECTION 3: LIVE ISS ORBIT TRACKING & GROUND MAP */}
+      {/* SECTION 3: LIVE ISS ORBIT TRACKING WITH NASA EARTH BACKDROP */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
         border: '1px solid rgba(56, 189, 248, 0.25)',
-        borderRadius: '20px',
-        padding: '2rem',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(16px)'
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.75) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/earth-orbit.jpg")',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        padding: '2.5rem',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
-              SECTION 02 · REAL ORBITAL INTELLIGENCE
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px' }}>
+              SECTION 02 · REAL ORBITAL TRACKING
             </p>
-            <h2 style={{ margin: '4px 0 0', fontSize: '1.75rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
-              International Space Station (NORAD 25544)
+            <h2 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+              International Space Station Trajectory
             </h2>
           </div>
 
@@ -103,18 +104,18 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
             <button
               onClick={() => onSelectSatellite('SAT-01')}
               style={{
-                padding: '0.6rem 1.25rem',
-                borderRadius: '8px',
+                padding: '0.65rem 1.35rem',
+                borderRadius: '10px',
                 background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
                 border: 'none',
                 color: '#fff',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 4px 15px rgba(2, 132, 199, 0.3)'
+                boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)'
               }}
             >
               Full Satellite Track <ArrowRight size={14} />
@@ -129,134 +130,114 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
         />
       </div>
 
-      {/* SECTION 4: SPACE STATION OPERATIONS & PRIORITY ALERTS */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
-        {/* Resource Health */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
-          borderRadius: '20px',
-          padding: '1.75rem',
-          backdropFilter: 'blur(16px)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <div>
-              <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
-                SECTION 03 · LIFE SUPPORT & HABITAT
-              </p>
-              <h3 style={{ margin: '4px 0 0', fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
-                Astra Habitat One Resources
-              </h3>
-            </div>
-            <StatusBadge status={station.status} />
-          </div>
+      {/* SECTION 4: SPACE STATION EXTERIOR & LIFE SUPPORT */}
+      <div style={{
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.82) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/iss-exterior.jpg")',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        padding: '2.5rem',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px' }}>
+              SECTION 03 · HABITAT & LIFE SUPPORT
+            </p>
+            <h2 style={{ margin: '4px 0 1.5rem', fontSize: '2rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+              Astra Habitat One Station Systems
+            </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
-            {resources.map((r) => {
-              const pct = Math.min(100, Math.max(0, Number(r.percentage || 0)));
-              return (
-                <div key={r.name} style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(56, 189, 248, 0.15)', padding: '1.25rem', borderRadius: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>{r.name}</span>
-                    <b style={{ color: '#38bdf8' }}>{pct}%</b>
-                  </div>
-                  <div style={{ height: '8px', borderRadius: '10px', background: 'rgba(15, 23, 42, 0.8)', overflow: 'hidden' }}>
-                    <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #38bdf8)', borderRadius: 'inherit' }} />
-                  </div>
-                  <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', marginTop: '8px', display: 'block' }}>
-                    {r.current_quantity} {r.unit}
-                  </small>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Priority System Alerts */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
-          borderRadius: '20px',
-          padding: '1.75rem',
-          backdropFilter: 'blur(16px)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
-              Priority Alerts
-            </h3>
-            <button
-              onClick={() => onSelectTab && onSelectTab('Alerts')}
-              style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              All Alerts <ArrowRight size={14} />
-            </button>
-          </div>
-
-          {alerts.length ? (
-            <div style={{ display: 'grid', gap: '0.85rem' }}>
-              {alerts.slice(0, 3).map((a) => (
-                <div key={a.alert_id} style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(244, 63, 94, 0.25)', padding: '1rem', borderRadius: '12px', display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
-                  <AlertTriangle size={20} style={{ color: '#f43f5e', flexShrink: 0, marginTop: '2px' }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <b style={{ fontSize: '12px', color: '#f8fafc' }}>{(a.alert_type || 'ALERT').replace('_', ' ')}</b>
-                      <StatusBadge status={a.severity} size="sm" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+              {resources.map((r) => {
+                const pct = Math.min(100, Math.max(0, Number(r.percentage || 0)));
+                return (
+                  <div key={r.name} style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '1.25rem', borderRadius: '14px', backdropFilter: 'blur(8px)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                      <span style={{ color: '#94a3b8', fontWeight: 600 }}>{r.name}</span>
+                      <b style={{ color: '#38bdf8' }}>{pct}%</b>
                     </div>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>{a.message}</p>
-                    <small style={{ fontSize: '9px', fontFamily: 'monospace', color: '#38bdf8', display: 'block', marginTop: '6px' }}>
-                      {a.satellite_code || a.module_code || 'SYSTEM'}
+                    <div style={{ height: '8px', borderRadius: '10px', background: 'rgba(30, 41, 59, 0.8)', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #38bdf8)', borderRadius: 'inherit' }} />
+                    </div>
+                    <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', marginTop: '8px', display: 'block' }}>
+                      {r.current_quantity} {r.unit}
                     </small>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          ) : (
-            <div style={{ padding: '2.5rem 0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontFamily: 'monospace' }}>
-              No unresolved alerts recorded in database.
+          </div>
+
+          {/* Priority Alerts Side Card */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(244, 63, 94, 0.3)', borderRadius: '16px', padding: '1.5rem', backdropFilter: 'blur(8px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
+                Priority Alerts
+              </h3>
+              <button
+                onClick={() => onSelectTab && onSelectTab('Alerts')}
+                style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                All Alerts <ArrowRight size={14} />
+              </button>
             </div>
-          )}
+
+            {alerts.length ? (
+              <div style={{ display: 'grid', gap: '0.85rem' }}>
+                {alerts.slice(0, 3).map((a) => (
+                  <div key={a.alert_id} style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(244, 63, 94, 0.25)', padding: '0.85rem', borderRadius: '10px', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <AlertTriangle size={18} style={{ color: '#f43f5e', flexShrink: 0, marginTop: '2px' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                        <b style={{ fontSize: '11px', color: '#ffffff' }}>{(a.alert_type || 'ALERT').replace('_', ' ')}</b>
+                        <StatusBadge status={a.severity} size="sm" />
+                      </div>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1' }}>{a.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '2rem 0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontFamily: 'monospace' }}>
+                No unresolved alerts.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* SECTION 5: SYSTEM EVENTS TIMELINE */}
+      {/* SECTION 5: CUPOLA EARTH OBSERVATION BANNER */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
-        border: '1px solid rgba(56, 189, 248, 0.2)',
-        borderRadius: '20px',
-        padding: '1.75rem',
-        backdropFilter: 'blur(16px)'
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.4) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/station-cupola.jpg")',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        padding: '4rem 3rem',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        minHeight: '380px'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
-              SECTION 04 · POSTGRESQL v_system_events VIEW
-            </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
-              Operational Event Activity Log
-            </h3>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '8px' }}>
+            <Eye size={14} />
+            <span>SECTION 04 · CUPOLA OBSERVATION MODULE</span>
           </div>
-          <Clock size={20} style={{ color: '#38bdf8' }} />
+          <h2 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+            Earth Orbital View From Cupola
+          </h2>
+          <p style={{ color: '#cbd5e1', fontSize: '1rem', marginTop: '0.75rem', lineHeight: 1.6 }}>
+            Astronaut observation platform overlooking low Earth orbit at an altitude of 420 kilometers.
+          </p>
         </div>
-
-        {events.length > 0 ? (
-          <div style={{ display: 'grid', gap: '0.75rem' }}>
-            {events.slice(0, 5).map((evt, idx) => (
-              <div key={idx} style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '0.85rem 1.25rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <StatusBadge status={evt.event_type} size="sm" />
-                  <b style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{evt.title}</b>
-                </div>
-                <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#64748b' }}>
-                  {new Date(evt.created_at).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: '2rem 0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontFamily: 'monospace' }}>
-            No operational events logged yet.
-          </div>
-        )}
       </div>
     </div>
   );

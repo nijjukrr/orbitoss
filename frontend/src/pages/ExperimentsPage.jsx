@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlaskConical, Activity, Calendar, User, Building2, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
+import { FlaskConical, Activity, Calendar, User, Building2, CheckCircle2, ChevronRight, FileText, Eye } from 'lucide-react';
 import { api } from '../api/client.js';
 import { MetricCard } from '../components/shared/MetricCard.jsx';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
@@ -49,18 +49,31 @@ export function ExperimentsPage() {
   if (error) return <ErrorState message={error} onRetry={fetchExperiments} />;
 
   return (
-    <div style={{ display: 'grid', gap: '2rem' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
-            <span>SCIENCE & RESEARCH OPERATIONS</span> · <span>MICROGRAVITY EXPERIMENTS</span>
+    <div style={{ display: 'grid', gap: '3rem' }}>
+      {/* Header with NASA Destiny Laboratory Background */}
+      <div style={{
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        border: '1px solid rgba(56, 189, 248, 0.3)',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.5) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/iss-lab.jpg")',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        padding: '3.5rem 3rem',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '8px' }}>
+              <Eye size={14} />
+              <span>NASA DESTINY LABORATORY · MICROGRAVITY SCIENCE</span>
+            </div>
+            <h1 style={{ margin: '4px 0 0', fontSize: '2.5rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-1px' }}>
+              Space Station Research Control
+            </h1>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
-            Space Station Research Control
-          </h1>
+          <StatusBadge status="NOMINAL" label="RESEARCH ACTIVE" />
         </div>
-        <StatusBadge status="NOMINAL" label="RESEARCH ACTIVE" />
       </div>
 
       {/* Metrics */}
@@ -79,8 +92,8 @@ export function ExperimentsPage() {
               key={exp.experiment_id || exp.code}
               onClick={() => openDetailModal(exp)}
               style={{
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-                border: '1px solid rgba(56, 189, 248, 0.15)',
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
                 borderRadius: '16px',
                 padding: '1.5rem',
                 cursor: 'pointer',
@@ -95,7 +108,7 @@ export function ExperimentsPage() {
                 e.currentTarget.style.transform = 'translateY(-4px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.2)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
@@ -115,7 +128,6 @@ export function ExperimentsPage() {
               </div>
 
               <div>
-                {/* Progress Bar */}
                 <div style={{ marginBottom: '1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'monospace', marginBottom: '4px' }}>
                     <span style={{ color: '#64748b' }}>PROGRESS</span>

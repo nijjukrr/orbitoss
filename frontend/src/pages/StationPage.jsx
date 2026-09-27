@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Compass, Activity, Zap, Layers, RefreshCw, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Building2, Compass, Activity, Zap, Layers, RefreshCw, AlertTriangle, ShieldCheck, Eye } from 'lucide-react';
 import { api } from '../api/client.js';
 import { MetricCard } from '../components/shared/MetricCard.jsx';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
@@ -42,18 +42,31 @@ export function StationPage() {
     : '86.0';
 
   return (
-    <div style={{ display: 'grid', gap: '2rem' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
-            <span>ASTRA HABITAT ONE</span> · <span>CREWED SPACE STATION OPERATIONS</span>
+    <div style={{ display: 'grid', gap: '3rem' }}>
+      {/* Cinematic Hero Header with Real NASA ISS Interior Background */}
+      <div style={{
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        border: '1px solid rgba(56, 189, 248, 0.3)',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.5) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/iss-interior.jpg")',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        padding: '3.5rem 3rem',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '8px' }}>
+              <Eye size={14} />
+              <span>ASTRA HABITAT ONE · ISS INTERIOR OPERATIONS</span>
+            </div>
+            <h1 style={{ margin: '4px 0 0', fontSize: '2.5rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-1px' }}>
+              Station Systems & Habitat Modules
+            </h1>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
-            Station Systems & Habitat Modules
-          </h1>
+          <StatusBadge status={station.status} />
         </div>
-        <StatusBadge status={station.status} />
       </div>
 
       {/* Metrics */}
@@ -70,10 +83,10 @@ export function StationPage() {
       {/* Module Cards Grid */}
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
-          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
             DETAILED ENVIRONMENTAL TELEMETRY
           </p>
-          <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc' }}>
+          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
             Module Status & Atmospheric Readings
           </h3>
         </div>
@@ -84,9 +97,9 @@ export function StationPage() {
               key={m.module_id || m.code}
               onClick={() => setSelectedModule(m)}
               style={{
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-                border: '1px solid rgba(56, 189, 248, 0.15)',
-                borderRadius: '14px',
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
+                borderRadius: '16px',
                 padding: '1.25rem',
                 cursor: 'pointer',
                 transition: 'all 0.25s ease'
@@ -96,7 +109,7 @@ export function StationPage() {
                 e.currentTarget.style.transform = 'translateY(-3px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.2)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
@@ -109,7 +122,7 @@ export function StationPage() {
                 {m.name}
               </h4>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11px', background: 'rgba(30, 41, 59, 0.5)', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11px', background: 'rgba(30, 41, 59, 0.6)', padding: '12px', borderRadius: '10px', marginBottom: '12px' }}>
                 <div>
                   <span style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>TEMP</span>
                   <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.temperature_c}°C</b>
@@ -165,7 +178,7 @@ export function StationPage() {
               </div>
             </div>
 
-            <div style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '1rem', borderRadius: '10px', fontSize: '12px', color: '#cbd5e1' }}>
+            <div style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '1rem', borderRadius: '10px', fontSize: '12px', color: '#cbd5e1' }}>
               <p style={{ margin: '0 0 6px' }}>Power Draw: <b style={{ color: '#38bdf8' }}>{selectedModule.power_kw ?? 4.8} kW</b></p>
               <p style={{ margin: '0 0 6px' }}>Last Maintenance Inspection: <b>{selectedModule.last_maintenance_on || 'Not recorded'}</b></p>
               <p style={{ margin: 0 }}>Telemetry Source: <b style={{ color: '#34d399' }}>PostgreSQL station_telemetry</b></p>

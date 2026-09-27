@@ -1,26 +1,23 @@
-# ORBITOPS — Media Attribution & NASA Educational Usage Guide
+# ORBITOPS — NASA Media Attribution & Educational Asset Record
 
-This document records all media assets, imagery, and visual resources used in **ORBITOPS Mission Control**.
-
----
-
-## 🛰 NASA Media Attribution Records
-
-All NASA imagery and media used in this project are sourced from public educational archives provided by the **National Aeronautics and Space Administration (NASA)** under NASA Media Guidelines for educational and non-commercial projects.
-
-| Local Filename | Original Source / Description | URL / Reference | Credit | Usage Note |
-| :--- | :--- | :--- | :--- | :--- |
-| `iss-hero.jpg` | International Space Station over Earth | NASA ISS Imagery Archive | NASA / Johnson Space Center | Educational Mission Control Hero Background |
-| `earth-orbit.jpg` | Earth Limb & Orbital Sunset from LEO | NASA Earth Observations | NASA Earth Observatory | Live Orbital Tracking Section |
-| `iss-exterior.jpg` | ISS Solar Arrays & External Truss | NASA ISS Station Gallery | NASA / Expedition Crew | Space Station Operations View |
-| `iss-lab.jpg` | Destiny Laboratory & Microgravity Science | NASA Science Operations | NASA Research Office | Science & Experiments Section |
-| `station-cupola.jpg` | Cupola Observation Module View | NASA Astronaut Photography | NASA / ESA | Habitat Module Exploration |
-| `docking.jpg` | SpaceX Crew Dragon Docking to ISS | NASA Commercial Crew | NASA / SpaceX | Command & Docking Operations |
+This document records the exact source pages, direct NASA CDN media URLs, NASA Asset IDs, credits, and usage details for all verified media assets physically downloaded into `frontend/public/media/nasa/`.
 
 ---
 
-## 📜 Usage Guidelines & Educational Disclaimer
+## 🛰 Verified NASA Asset Records
 
-1. **Non-Commercial Educational Use**: Sourced imagery is utilized strictly for educational demonstration in a university Database Management Systems (DBMS) project.
-2. **No Endorsement Implied**: This project is not affiliated with, endorsed by, or sponsored by NASA or SpaceX.
-3. **Branding Isolation**: The official NASA and SpaceX logos are NOT used as decorative logos for ORBITOPS.
+| Local Filename | NASA Asset ID | Source Page | Direct Media CDN URL | File Size | Credit | Usage in ORBITOPS |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `iss-hero.jpg` | `iss071e456772` | [NASA Image & Video Library](https://images.nasa.gov/details/iss071e456772) | `http://images-assets.nasa.gov/image/iss071e456772/iss071e456772~medium.jpg` | 73,941 bytes | NASA / Johnson Space Center | Full-bleed Hero section background |
+| `earth-orbit.jpg` | `iss023e057948` | [NASA Image & Video Library](https://images.nasa.gov/details/iss023e057948) | `http://images-assets.nasa.gov/image/iss023e057948/iss023e057948~medium.jpg` | 50,827 bytes | NASA Earth Observatory / Expedition 23 | Live Orbital Tracking & Ground Map background |
+| `iss-exterior.jpg` | `iss065e125924` | [NASA Image & Video Library](https://images.nasa.gov/details/iss065e125924) | `http://images-assets.nasa.gov/image/iss065e125924/iss065e125924~medium.jpg` | 174,658 bytes | NASA / Expedition 65 Crew | Space Station Operations & Habitat section |
+| `iss-interior.jpg` | `iss057e132459` | [NASA Image & Video Library](https://images.nasa.gov/details/iss057e132459) | `http://images-assets.nasa.gov/image/iss057e132459/iss057e132459~medium.jpg` | 195,214 bytes | NASA / Expedition 57 Crew | Habitat Modules & Systems section |
+| `iss-lab.jpg` | `0201077` | [NASA Image & Video Library](https://images.nasa.gov/details/0201077) | `http://images-assets.nasa.gov/image/0201077/0201077~medium.jpg` | 124,621 bytes | NASA Marshall Space Flight Center | Science Research & Experiments page |
+| `station-cupola.jpg` | `iss038e013587` | [NASA Image & Video Library](https://images.nasa.gov/details/iss038e013587) | `http://images-assets.nasa.gov/image/iss038e013587/iss038e013587~medium.jpg` | 227,459 bytes | NASA / ESA / Expedition 38 | Cupola Module & Earth Observation view |
+| `docking.jpg` | `iss071e256593` | [NASA Image & Video Library](https://images.nasa.gov/details/iss071e256593) | `http://images-assets.nasa.gov/image/iss071e256593/iss071e256593~medium.jpg` | 144,066 bytes | NASA Commercial Crew / SpaceX | Command Uplink & Docking Operations |
+
+---
+
+## 📜 Educational Use Disclaimer
+- **Non-Commercial Educational Project**: Sourced imagery is used strictly for non-commercial educational demonstration in a university Database Management Systems (DBMS) project.
+- **No NASA Endorsement Implied**: This project is an independent educational DBMS application and is not sponsored, endorsed, or certified by NASA or SpaceX.
