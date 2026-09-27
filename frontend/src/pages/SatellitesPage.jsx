@@ -89,24 +89,25 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
     { code: 'SAT-04', name: 'EcoWatch-4', source: 'SIMULATED' },
   ];
 
-  const currentLat = liveOrbit?.latitude ?? s.current_latitude ?? 0;
-  const currentLon = liveOrbit?.longitude ?? s.current_longitude ?? 0;
-  const currentAlt = liveOrbit?.altitude_km ?? s.current_altitude_km ?? 408;
-  const currentVel = liveOrbit?.velocity_kms ?? s.current_velocity_kms ?? 7.66;
+  const currentLat = liveOrbit?.latitude ?? s.current_latitude ?? null;
+  const currentLon = liveOrbit?.longitude ?? s.current_longitude ?? null;
+  const currentAlt = liveOrbit?.altitude_km ?? s.current_altitude_km ?? null;
+  const currentVel = liveOrbit?.velocity_kms ?? s.current_velocity_kms ?? null;
 
   return (
     <div style={{ display: 'grid', gap: '2.5rem' }}>
-      {/* Cinematic Top Section using NASA Earth Orbit Background */}
+      {/* Cinematic Top Section using Monochrome NASA Earth Orbit Background */}
       <div style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
-        border: '1px solid rgba(56, 189, 248, 0.35)',
-        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.35) 0%, rgba(3, 7, 18, 0.85) 100%), url("/media/nasa/earth-orbit.jpg")',
+        border: '1px solid #3a3a3a',
+        backgroundImage: 'linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%), url("/media/nasa/earth-orbit.jpg")',
         backgroundPosition: 'center',
         backgroundSize: 'cover',
+        filter: 'grayscale(100%) contrast(110%) brightness(85%)',
         padding: '3rem 2.5rem',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9)',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '2rem',
@@ -114,7 +115,7 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
       }}>
         {/* LEFT COLUMN: ISS / Satellite Identity */}
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', background: 'rgba(3, 7, 18, 0.75)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, marginBottom: '12px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', background: '#000000', border: '1px solid #ffffff', color: '#ffffff', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, marginBottom: '12px' }}>
             <Eye size={13} />
             <span>REAL ISS ORBITAL TRACKING · CelesTrak TLE + SGP4 propagation</span>
           </div>
@@ -124,13 +125,13 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
           </h1>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#cbd5e1' }}>
-              NORAD ID: <b style={{ color: '#38bdf8' }}>{s.norad_id || 25544}</b>
+            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#dadada' }}>
+              NORAD ID: <b style={{ color: '#ffffff' }}>{s.norad_id || 25544}</b>
             </span>
-            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#cbd5e1' }}>
+            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#dadada' }}>
               Purpose: <b>{s.purpose || 'Space Operations & Tracking'}</b>
             </span>
-            <StatusBadge status={orbitalSource} label={orbitalSource === 'REAL' ? 'REAL ISS POSITION' : 'SIMULATED ORBIT'} />
+            <StatusBadge status={orbitalSource} label={orbitalSource === 'REAL' ? '[● REAL]' : '[◇ SIMULATED]'} />
           </div>
         </div>
 
@@ -139,41 +140,41 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
           gap: '1rem',
-          background: 'rgba(3, 7, 18, 0.8)',
-          border: '1px solid rgba(56, 189, 248, 0.25)',
+          background: '#000000',
+          border: '1px solid #3a3a3a',
           padding: '1.25rem',
           borderRadius: '16px',
           backdropFilter: 'blur(12px)'
         }}>
           <div>
-            <span style={{ color: '#94a3b8', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>ALTITUDE</span>
-            <b style={{ fontSize: '1.4rem', color: '#38bdf8' }}>{Number(currentAlt).toFixed(1)} km</b>
-            <small style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>Geodetic Height</small>
+            <span style={{ color: '#999999', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>ALTITUDE</span>
+            <b style={{ fontSize: '1.4rem', color: '#ffffff' }}>{currentAlt != null ? `${Number(currentAlt).toFixed(1)} km` : 'UNAVAILABLE'}</b>
+            <small style={{ color: '#777777', fontSize: '10px', display: 'block' }}>Geodetic Height</small>
           </div>
 
           <div>
-            <span style={{ color: '#94a3b8', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>VELOCITY</span>
-            <b style={{ fontSize: '1.4rem', color: '#34d399' }}>{Number(currentVel).toFixed(2)} km/s</b>
-            <small style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>Orbital Speed</small>
+            <span style={{ color: '#999999', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>VELOCITY</span>
+            <b style={{ fontSize: '1.4rem', color: '#ffffff' }}>{currentVel != null ? `${Number(currentVel).toFixed(2)} km/s` : 'UNAVAILABLE'}</b>
+            <small style={{ color: '#777777', fontSize: '10px', display: 'block' }}>Orbital Speed</small>
           </div>
 
           <div>
-            <span style={{ color: '#94a3b8', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>LATITUDE</span>
-            <b style={{ fontSize: '1.2rem', color: '#f8fafc' }}>{Number(currentLat).toFixed(3)}° N</b>
-            <small style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>Sub-satellite Point</small>
+            <span style={{ color: '#999999', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>LATITUDE</span>
+            <b style={{ fontSize: '1.2rem', color: '#ffffff' }}>{currentLat != null ? `${Number(currentLat).toFixed(3)}° N` : 'N/A'}</b>
+            <small style={{ color: '#777777', fontSize: '10px', display: 'block' }}>Sub-satellite Point</small>
           </div>
 
           <div>
-            <span style={{ color: '#94a3b8', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>LONGITUDE</span>
-            <b style={{ fontSize: '1.2rem', color: '#f8fafc' }}>{Number(currentLon).toFixed(3)}° E</b>
-            <small style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>Sub-satellite Point</small>
+            <span style={{ color: '#999999', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>LONGITUDE</span>
+            <b style={{ fontSize: '1.2rem', color: '#ffffff' }}>{currentLon != null ? `${Number(currentLon).toFixed(3)}° E` : 'N/A'}</b>
+            <small style={{ color: '#777777', fontSize: '10px', display: 'block' }}>Sub-satellite Point</small>
           </div>
         </div>
       </div>
 
-      {/* Fleet Navigation Switcher - CSS Grid without native scrollbars */}
+      {/* Fleet Navigation Switcher - CSS Grid without native scrollbars in Monochrome */}
       <div>
-        <p style={{ margin: '0 0 8px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1.5px' }}>
           SELECT SPACECRAFT FLEET MEMBER
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.85rem' }}>
@@ -186,24 +187,24 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
                 style={{
                   padding: '0.85rem 1rem',
                   borderRadius: '12px',
-                  border: `1px solid ${isSelected ? '#38bdf8' : 'rgba(56, 189, 248, 0.15)'}`,
-                  background: isSelected ? 'linear-gradient(135deg, rgba(2, 132, 199, 0.35), rgba(6, 182, 212, 0.2))' : 'rgba(15, 23, 42, 0.75)',
-                  color: isSelected ? '#ffffff' : '#94a3b8',
-                  fontWeight: isSelected ? 800 : 500,
+                  border: `1px solid ${isSelected ? '#ffffff' : '#242424'}`,
+                  background: isSelected ? '#ffffff' : '#111111',
+                  color: isSelected ? '#000000' : '#999999',
+                  fontWeight: isSelected ? 900 : 500,
                   fontSize: '0.875rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  boxShadow: isSelected ? '0 0 20px rgba(56, 189, 248, 0.25)' : 'none',
+                  boxShadow: isSelected ? '0 0 20px rgba(255, 255, 255, 0.2)' : 'none',
                   transition: 'all 0.25s ease'
                 }}
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Orbit size={16} style={{ color: isSelected ? '#38bdf8' : '#64748b' }} />
+                  <Orbit size={16} style={{ color: isSelected ? '#000000' : '#777777' }} />
                   <b>{sat.code}</b>
                 </span>
-                <StatusBadge status={sat.source} size="sm" />
+                <StatusBadge status={sat.source} size="sm" label={sat.source === 'REAL' ? '[● REAL]' : '[◇ SIM]'} />
               </button>
             );
           })}
@@ -214,8 +215,8 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
       <div style={{
         padding: '1.25rem 1.5rem',
         borderRadius: '14px',
-        background: orbitalSource === 'REAL' ? (reliable ? 'rgba(16, 185, 129, 0.12)' : 'rgba(244, 63, 94, 0.12)') : 'rgba(30, 41, 59, 0.5)',
-        border: `1px solid ${orbitalSource === 'REAL' ? (reliable ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)') : 'rgba(56, 189, 248, 0.2)'}`,
+        background: '#111111',
+        border: '1px solid #3a3a3a',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -223,12 +224,12 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
         gap: '1rem'
       }}>
         <div>
-          <b style={{ display: 'block', fontSize: '0.95rem', color: '#f8fafc' }}>
+          <b style={{ display: 'block', fontSize: '0.95rem', color: '#ffffff' }}>
             {orbitalSource === 'REAL'
               ? 'REAL ISS ORBITAL TRACKING (CelesTrak TLE + SGP4 propagation)'
               : 'SYNTHETIC SATELLITE ORBIT SIMULATION'}
           </b>
-          <p style={{ margin: '4px 0 0', color: '#cbd5e1', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+          <p style={{ margin: '4px 0 0', color: '#dadada', fontSize: '0.75rem', fontFamily: 'monospace' }}>
             ORBITAL POSITION: REAL | MISSION TELEMETRY: SIMULATED (Source: {dataSource} | TLE Age: {tleAgeHours} hours)
           </p>
         </div>
@@ -240,9 +241,9 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
             style={{
               padding: '0.55rem 1.1rem',
               borderRadius: '8px',
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
-              color: '#38bdf8',
+              background: '#000000',
+              border: '1px solid #ffffff',
+              color: '#ffffff',
               fontSize: '0.75rem',
               fontFamily: 'monospace',
               fontWeight: 700,
@@ -259,56 +260,56 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
       </div>
 
       {/* Live Ground Track Map */}
-      <div style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '16px', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
+      <div style={{ background: '#111111', border: '1px solid #3a3a3a', borderRadius: '16px', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
         <OrbitMap satellite={s} liveOrbit={liveOrbit} orbitHistory={orbitHistory} groundStations={groundStations} />
       </div>
 
       {/* Hardware Subsystem Components & Telemetry Chart */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         {/* Hardware Components */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '1.5rem', borderRadius: '16px' }}>
+        <div style={{ background: '#111111', border: '1px solid #3a3a3a', padding: '1.5rem', borderRadius: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <div>
-              <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+              <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
                 HARDWARE SUBSYSTEMS
               </p>
-              <h3 style={{ margin: '4px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc' }}>
+              <h3 style={{ margin: '4px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
                 Component Health Roster
               </h3>
             </div>
-            <Cpu size={20} style={{ color: '#38bdf8' }} />
+            <Cpu size={20} style={{ color: '#ffffff' }} />
           </div>
 
           {components.length ? (
             <div style={{ display: 'grid', gap: '0.75rem' }}>
               {components.map((c) => (
-                <div key={c.name} style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f8fafc' }}>{c.name}</span>
+                <div key={c.name} style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff' }}>{c.name}</span>
                   <StatusBadge status={c.status} size="sm" />
                 </div>
               ))}
             </div>
           ) : (
-            <div style={{ padding: '2rem 0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontFamily: 'monospace' }}>
+            <div style={{ padding: '2rem 0', textAlign: 'center', color: '#777777', fontSize: '12px', fontFamily: 'monospace' }}>
               All core satellite hardware components nominal.
             </div>
           )}
         </div>
 
         {/* Telemetry Chart */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '1.5rem', borderRadius: '16px' }}>
+        <div style={{ background: '#111111', border: '1px solid #3a3a3a', padding: '1.5rem', borderRadius: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <div>
-              <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+              <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
                 SIMULATED TELEMETRY
               </p>
-              <h3 style={{ margin: '4px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc' }}>
+              <h3 style={{ margin: '4px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
                 Battery Power History
               </h3>
             </div>
-            <Zap size={20} style={{ color: '#fbbf24' }} />
+            <Zap size={20} style={{ color: '#ffffff' }} />
           </div>
-          <TelemetryChart data={telemetry} dataKey="battery_pct" name="Battery %" stroke="#38bdf8" />
+          <TelemetryChart data={telemetry} dataKey="battery_pct" name="Battery %" stroke="#ffffff" />
         </div>
       </div>
     </div>

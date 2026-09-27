@@ -60,7 +60,6 @@ export function CommandCenterPage() {
   const statusOrder = ['CREATED', 'TRANSMITTED', 'RECEIVED', 'EXECUTED'];
   const currentIndex = statusOrder.indexOf(currentStatus);
 
-  // Helper to find log timestamp for a given status stage
   const getStageTimestamp = (statusName) => {
     if (!activeCommand) return null;
     const logMatch = commandLogs.find(l => l.status === statusName);
@@ -76,10 +75,10 @@ export function CommandCenterPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
             <span>UPLINK OPERATIONS</span> · <span>DBMS TRANSACTION & STORED PROCEDURE PIPELINE</span>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
+          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>
             Spacecraft Command & Control Center
           </h1>
         </div>
@@ -88,24 +87,24 @@ export function CommandCenterPage() {
 
       {/* Command Transmission Form */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
-        border: '1px solid rgba(56, 189, 248, 0.25)',
+        background: '#111111',
+        border: '1px solid #3a3a3a',
         borderRadius: '16px',
         padding: '1.75rem',
         backdropFilter: 'blur(12px)',
-        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)'
+        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5)'
       }}>
-        <h3 style={{ margin: '0 0 1.25rem', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Send size={18} style={{ color: '#38bdf8' }} /> Transmit Transactional Spacecraft Command
+        <h3 style={{ margin: '0 0 1.25rem', fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Send size={18} style={{ color: '#ffffff' }} /> Transmit Transactional Spacecraft Command
         </h3>
 
         <form onSubmit={handleTransmitCommand} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1.25rem', alignItems: 'end' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8', marginBottom: '6px' }}>TARGET SPACECRAFT</label>
+            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#999999', marginBottom: '6px' }}>TARGET SPACECRAFT</label>
             <select
               value={satelliteCode}
               onChange={(e) => setSatelliteCode(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(56, 189, 248, 0.25)', color: '#f8fafc', fontWeight: 600 }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#000000', border: '1px solid #3a3a3a', color: '#ffffff', fontWeight: 600 }}
             >
               <option value="SAT-01">SAT-01 (ISS / Aurelia)</option>
               <option value="SAT-02">SAT-02 (AstraRelay-1)</option>
@@ -115,11 +114,11 @@ export function CommandCenterPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8', marginBottom: '6px' }}>COMMAND ACTION</label>
+            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#999999', marginBottom: '6px' }}>COMMAND ACTION</label>
             <select
               value={commandType}
               onChange={(e) => setCommandType(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(56, 189, 248, 0.25)', color: '#f8fafc', fontWeight: 600 }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#000000', border: '1px solid #3a3a3a', color: '#ffffff', fontWeight: 600 }}
             >
               {['SAFE_MODE', 'RESTART_PAYLOAD', 'ORIENTATION_CHANGE', 'REQUEST_TELEMETRY'].map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -133,13 +132,13 @@ export function CommandCenterPage() {
             style={{
               padding: '0.75rem 1.5rem',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
-              border: 'none',
-              color: '#fff',
-              fontWeight: 800,
+              background: '#ffffff',
+              border: '1px solid #ffffff',
+              color: '#000000',
+              fontWeight: 900,
               fontSize: '0.9rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)'
+              boxShadow: '0 4px 15px rgba(255, 255, 255, 0.2)'
             }}
           >
             {loading ? 'Transmitting...' : 'Transmit Command →'}
@@ -147,12 +146,12 @@ export function CommandCenterPage() {
         </form>
 
         {successMsg && (
-          <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', fontSize: '12px', fontFamily: 'monospace' }}>
+          <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '8px', background: '#1c1c1c', border: '1px solid #ffffff', color: '#ffffff', fontSize: '12px', fontFamily: 'monospace' }}>
             ✓ {successMsg}
           </div>
         )}
         {error && (
-          <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '8px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#fb7185', fontSize: '12px', fontFamily: 'monospace' }}>
+          <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '8px', background: '#1c1c1c', border: '1px solid #777777', color: '#dadada', fontSize: '12px', fontFamily: 'monospace' }}>
             ⚠ {error}
           </div>
         )}
@@ -160,19 +159,19 @@ export function CommandCenterPage() {
 
       {/* 4-Step Lifecycle Stepper with Timestamps & Advance Trigger Controls */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
-        border: '1px solid rgba(56, 189, 248, 0.25)',
+        background: '#111111',
+        border: '1px solid #3a3a3a',
         borderRadius: '16px',
         padding: '1.75rem',
         backdropFilter: 'blur(12px)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1.5px' }}>
               POSTGRESQL STORED PROCEDURE advance_command()
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>
-              Command Lifecycle State Machine: <span style={{ color: '#38bdf8' }}>{currentStatus}</span>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>
+              Command Lifecycle State Machine: <span style={{ color: '#ffffff' }}>{currentStatus}</span>
             </h3>
           </div>
 
@@ -182,7 +181,7 @@ export function CommandCenterPage() {
                 <button
                   onClick={() => handleAdvanceStatus('TRANSMITTED')}
                   disabled={advancing}
-                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#38bdf8', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: '#1c1c1c', border: '1px solid #ffffff', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
                 >
                   ➡ Advance to TRANSMITTED
                 </button>
@@ -191,7 +190,7 @@ export function CommandCenterPage() {
                 <button
                   onClick={() => handleAdvanceStatus('RECEIVED')}
                   disabled={advancing}
-                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#38bdf8', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: '#1c1c1c', border: '1px solid #ffffff', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
                 >
                   ➡ Advance to RECEIVED
                 </button>
@@ -200,7 +199,7 @@ export function CommandCenterPage() {
                 <button
                   onClick={() => handleAdvanceStatus('EXECUTED')}
                   disabled={advancing}
-                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: 'linear-gradient(135deg, #059669, #10b981)', border: 'none', color: '#fff', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}
+                  style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', background: '#ffffff', border: '1px solid #ffffff', color: '#000000', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 255, 255, 0.3)' }}
                 >
                   ✔ Execute Command (Stored Procedure)
                 </button>
@@ -220,8 +219,8 @@ export function CommandCenterPage() {
               <div
                 key={st}
                 style={{
-                  background: isActive ? 'rgba(56, 189, 248, 0.15)' : isCompleted ? 'rgba(16, 185, 129, 0.1)' : 'rgba(30, 41, 59, 0.4)',
-                  border: `1px solid ${isActive ? '#38bdf8' : isCompleted ? 'rgba(16, 185, 129, 0.4)' : 'rgba(56, 189, 248, 0.15)'}`,
+                  background: isActive ? '#1c1c1c' : isCompleted ? '#111111' : '#0a0a0a',
+                  border: `1px solid ${isActive ? '#ffffff' : isCompleted ? '#777777' : '#242424'}`,
                   borderRadius: '12px',
                   padding: '1.25rem 1rem',
                   display: 'flex',
@@ -229,16 +228,16 @@ export function CommandCenterPage() {
                   alignItems: 'center',
                   textAlign: 'center',
                   gap: '8px',
-                  boxShadow: isActive ? '0 0 20px rgba(56, 189, 248, 0.25)' : 'none'
+                  boxShadow: isActive ? '0 0 20px rgba(255, 255, 255, 0.2)' : 'none'
                 }}
               >
                 <div style={{
                   width: '36px',
                   height: '36px',
                   borderRadius: '50%',
-                  border: `2px solid ${isActive ? '#38bdf8' : isCompleted ? '#10b981' : 'rgba(56, 189, 248, 0.2)'}`,
-                  background: isActive ? 'rgba(56, 189, 248, 0.25)' : isCompleted ? 'rgba(16, 185, 129, 0.25)' : 'rgba(15, 23, 42, 0.8)',
-                  color: isActive ? '#38bdf8' : isCompleted ? '#34d399' : '#64748b',
+                  border: `2px solid ${isActive ? '#ffffff' : isCompleted ? '#ffffff' : '#3a3a3a'}`,
+                  background: isActive ? '#ffffff' : isCompleted ? '#1c1c1c' : '#000000',
+                  color: isActive ? '#000000' : isCompleted ? '#ffffff' : '#777777',
                   display: 'grid',
                   placeItems: 'center',
                   fontWeight: 900,
@@ -248,11 +247,11 @@ export function CommandCenterPage() {
                   {isCompleted ? '✓' : idx + 1}
                 </div>
 
-                <b style={{ fontSize: '0.9rem', color: isActive ? '#38bdf8' : isCompleted ? '#f8fafc' : '#64748b', textTransform: 'uppercase' }}>
+                <b style={{ fontSize: '0.9rem', color: isActive ? '#ffffff' : isCompleted ? '#dadada' : '#777777', textTransform: 'uppercase' }}>
                   {st}
                 </b>
 
-                <small style={{ fontSize: '10px', fontFamily: 'monospace', color: timestamp ? '#34d399' : '#64748b' }}>
+                <small style={{ fontSize: '10px', fontFamily: 'monospace', color: timestamp ? '#ffffff' : '#777777' }}>
                   {timestamp ? `● ${timestamp}` : 'Pending'}
                 </small>
               </div>
@@ -262,15 +261,15 @@ export function CommandCenterPage() {
 
         {/* Audit Log Trail underneath */}
         {commandLogs.length > 0 && (
-          <div style={{ marginTop: '1.5rem', borderTop: '1px solid rgba(56, 189, 248, 0.15)', paddingTop: '1.25rem' }}>
-            <h4 style={{ margin: '0 0 0.85rem', fontSize: '0.95rem', fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace' }}>
+          <div style={{ marginTop: '1.5rem', borderTop: '1px solid #242424', paddingTop: '1.25rem' }}>
+            <h4 style={{ margin: '0 0 0.85rem', fontSize: '0.95rem', fontWeight: 700, color: '#ffffff', fontFamily: 'monospace' }}>
               Database Audit Trail (POSTGRESQL command_logs table)
             </h4>
             <div style={{ display: 'grid', gap: '0.5rem' }}>
               {commandLogs.map((log) => (
-                <div key={log.logged_at} style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
-                  <span>Stage: <b style={{ color: '#38bdf8' }}>{log.status}</b> — {log.note || 'Status transitioned by PostgreSQL procedure'}</span>
-                  <span style={{ color: '#64748b', fontFamily: 'monospace', fontWeight: 600 }}>{new Date(log.logged_at).toLocaleTimeString()}</span>
+                <div key={log.logged_at} style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                  <span>Stage: <b style={{ color: '#ffffff' }}>{log.status}</b> — {log.note || 'Status transitioned by PostgreSQL procedure'}</span>
+                  <span style={{ color: '#777777', fontFamily: 'monospace', fontWeight: 600 }}>{new Date(log.logged_at).toLocaleTimeString()}</span>
                 </div>
               ))}
             </div>

@@ -27,8 +27,8 @@ export function Sidebar({ activeTab, onTabChange }) {
   return (
     <aside style={{
       width: '260px',
-      background: 'rgba(9, 21, 38, 0.95)',
-      borderRight: '1px solid rgba(56, 189, 248, 0.15)',
+      background: '#000000',
+      borderRight: '1px solid #242424',
       padding: '1.75rem 1rem',
       display: 'flex',
       flexDirection: 'column',
@@ -41,19 +41,19 @@ export function Sidebar({ activeTab, onTabChange }) {
           width: '40px',
           height: '40px',
           borderRadius: '10px',
-          background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
+          background: '#ffffff',
           display: 'grid',
           placeItems: 'center',
-          color: '#fff',
-          boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)'
+          color: '#000000',
+          fontWeight: 900
         }}>
           <Globe2 size={24} />
         </div>
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, letterSpacing: '1px', color: '#f8fafc' }}>
-            ORBIT<span style={{ color: '#38bdf8' }}>OPS</span>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, letterSpacing: '1px', color: '#ffffff' }}>
+            ORBIT<span style={{ color: '#999999' }}>OPS</span>
           </h2>
-          <small style={{ color: '#64748b', fontSize: '9px', fontFamily: 'monospace', letterSpacing: '2px', display: 'block' }}>
+          <small style={{ color: '#777777', fontSize: '9px', fontFamily: 'monospace', letterSpacing: '2px', display: 'block' }}>
             MISSION CONTROL DBMS
           </small>
         </div>
@@ -75,17 +75,17 @@ export function Sidebar({ activeTab, onTabChange }) {
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: isActive ? 'linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(6, 182, 212, 0.05))' : 'transparent',
-                color: isActive ? '#38bdf8' : '#94a3b8',
+                background: isActive ? '#1c1c1c' : 'transparent',
+                color: isActive ? '#ffffff' : '#999999',
                 fontSize: '0.875rem',
-                fontWeight: isActive ? 700 : 500,
+                fontWeight: isActive ? 800 : 500,
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'all 0.2s ease',
-                boxShadow: isActive ? 'inset 3px 0 0 #38bdf8' : 'none'
+                borderLeft: isActive ? '3px solid #ffffff' : '3px solid transparent'
               }}
             >
-              <Icon size={18} style={{ color: isActive ? '#38bdf8' : '#64748b' }} />
+              <Icon size={18} style={{ color: isActive ? '#ffffff' : '#777777' }} />
               <span>{item.label}</span>
             </button>
           );
@@ -95,7 +95,7 @@ export function Sidebar({ activeTab, onTabChange }) {
       {/* Operator Profile */}
       <div style={{
         marginTop: 'auto',
-        borderTop: '1px solid rgba(56, 189, 248, 0.15)',
+        borderTop: '1px solid #242424',
         paddingTop: '1.25rem',
         display: 'flex',
         alignItems: 'center',
@@ -105,17 +105,17 @@ export function Sidebar({ activeTab, onTabChange }) {
           width: '36px',
           height: '36px',
           borderRadius: '50%',
-          background: 'rgba(56, 189, 248, 0.15)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
+          background: '#1c1c1c',
+          border: '1px solid #3a3a3a',
           display: 'grid',
           placeItems: 'center',
-          color: '#38bdf8'
+          color: '#ffffff'
         }}>
           <UserCheck size={18} />
         </div>
         <div>
-          <b style={{ display: 'block', fontSize: '12px', color: '#f8fafc' }}>Maya Raman</b>
-          <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace' }}>Mission Controller</small>
+          <b style={{ display: 'block', fontSize: '12px', color: '#ffffff' }}>Maya Raman</b>
+          <small style={{ color: '#777777', fontSize: '10px', fontFamily: 'monospace' }}>Mission Controller</small>
         </div>
       </div>
     </aside>

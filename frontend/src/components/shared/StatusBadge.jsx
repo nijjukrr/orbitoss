@@ -3,47 +3,61 @@ import React from 'react';
 export function StatusBadge({ status, label, size = 'md' }) {
   const normalized = String(status || 'NOMINAL').toUpperCase();
 
-  let colors = {
-    bg: 'rgba(16, 185, 129, 0.15)',
-    border: 'rgba(16, 185, 129, 0.4)',
-    text: '#34d399',
-    dot: '#10b981'
+  let styles = {
+    bg: '#161616',
+    border: '1px solid #3a3a3a',
+    text: '#ffffff',
+    symbol: '●'
   };
 
   if (normalized === 'WARNING') {
-    colors = {
-      bg: 'rgba(245, 158, 11, 0.15)',
-      border: 'rgba(245, 158, 11, 0.4)',
-      text: '#fbbf24',
-      dot: '#f59e0b'
+    styles = {
+      bg: '#111111',
+      border: '1px solid #777777',
+      text: '#dadada',
+      symbol: '!'
     };
   } else if (normalized === 'CRITICAL' || normalized === 'FAILED') {
-    colors = {
-      bg: 'rgba(244, 63, 94, 0.15)',
-      border: 'rgba(244, 63, 94, 0.4)',
-      text: '#fb7185',
-      dot: '#f43f5e'
+    styles = {
+      bg: '#1c1c1c',
+      border: '2px solid #ffffff',
+      text: '#ffffff',
+      symbol: '⚠'
+    };
+  } else if (normalized === 'RESOLVED' || normalized === 'COMPLETED') {
+    styles = {
+      bg: '#0a0a0a',
+      border: '1px solid #3a3a3a',
+      text: '#999999',
+      symbol: '✓'
     };
   } else if (normalized === 'OFFLINE' || normalized === 'MAINTENANCE') {
-    colors = {
-      bg: 'rgba(148, 163, 184, 0.15)',
-      border: 'rgba(148, 163, 184, 0.4)',
-      text: '#94a3b8',
-      dot: '#64748b'
+    styles = {
+      bg: '#0a0a0a',
+      border: '1px solid #242424',
+      text: '#777777',
+      symbol: '○'
     };
-  } else if (normalized === 'REAL' || normalized === 'LIVE') {
-    colors = {
-      bg: 'rgba(6, 182, 212, 0.15)',
-      border: 'rgba(6, 182, 212, 0.4)',
-      text: '#38bdf8',
-      dot: '#06b6d4'
+  } else if (normalized === 'REAL') {
+    styles = {
+      bg: '#ffffff',
+      border: '1px solid #ffffff',
+      text: '#000000',
+      symbol: '●'
     };
   } else if (normalized === 'SIMULATED') {
-    colors = {
-      bg: 'rgba(168, 85, 247, 0.15)',
-      border: 'rgba(168, 85, 247, 0.4)',
-      text: '#c084fc',
-      dot: '#a855f7'
+    styles = {
+      bg: '#161616',
+      border: '1px solid #555555',
+      text: '#dadada',
+      symbol: '◇'
+    };
+  } else if (normalized === 'LIVE' || normalized === 'CONNECTED') {
+    styles = {
+      bg: '#1c1c1c',
+      border: '1px solid #999999',
+      text: '#ffffff',
+      symbol: '◉'
     };
   }
 
@@ -59,23 +73,15 @@ export function StatusBadge({ status, label, size = 'md' }) {
         borderRadius: '6px',
         fontSize: isSmall ? '10px' : '11px',
         fontFamily: 'monospace',
-        fontWeight: 600,
+        fontWeight: 700,
         letterSpacing: '0.5px',
-        background: colors.bg,
-        border: `1px solid ${colors.border}`,
-        color: colors.text,
+        background: styles.bg,
+        border: styles.border,
+        color: styles.text,
         whiteSpace: 'nowrap'
       }}
     >
-      <span
-        style={{
-          width: isSmall ? '5px' : '7px',
-          height: isSmall ? '5px' : '7px',
-          borderRadius: '50%',
-          background: colors.dot,
-          boxShadow: `0 0 8px ${colors.dot}`
-        }}
-      />
+      <span style={{ fontSize: isSmall ? '9px' : '11px', fontWeight: 900 }}>{styles.symbol}</span>
       {label || normalized}
     </span>
   );

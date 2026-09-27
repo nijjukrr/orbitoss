@@ -54,23 +54,24 @@ function GroundStationWorldMap({ stations = [], communications = [] }) {
       'SAT-04': [62.8, 120.4, 'EcoWatch-4']
     };
 
-    // Station Icons
+    // Station Icons: White square with black center ring per monochrome rule
     const stationIcon = L.divIcon({
       className: 'custom-gs-icon',
       html: `<div style="
-        width: 26px;
-        height: 26px;
-        background: radial-gradient(circle, #34d399 20%, #064e3b 80%);
-        border: 2px solid #34d399;
-        border-radius: 50%;
-        box-shadow: 0 0 15px rgba(52, 211, 153, 0.6);
+        width: 24px;
+        height: 24px;
+        background: #000000;
+        border: 2px solid #ffffff;
+        border-radius: 4px;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
         display: grid;
         place-items: center;
-        color: #fff;
-        font-size: 12px;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: bold;
       ">📡</div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13]
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
     });
 
     const satIcon = L.divIcon({
@@ -78,14 +79,15 @@ function GroundStationWorldMap({ stations = [], communications = [] }) {
       html: `<div style="
         width: 24px;
         height: 24px;
-        background: radial-gradient(circle, #38bdf8 20%, #0c4a6e 80%);
-        border: 2px solid #38bdf8;
+        background: #ffffff;
+        border: 2px solid #ffffff;
         border-radius: 50%;
-        box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
         display: grid;
         place-items: center;
-        color: #fff;
+        color: #000000;
         font-size: 11px;
+        font-weight: bold;
       ">🛰</div>`,
       iconSize: [24, 24],
       iconAnchor: [12, 12]
@@ -96,8 +98,8 @@ function GroundStationWorldMap({ stations = [], communications = [] }) {
       const coords = stationCoords[st.code] || [Number(st.latitude) || 0, Number(st.longitude) || 0, st.city];
       L.marker([coords[0], coords[1]], { icon: stationIcon })
         .bindPopup(`
-          <div style="font-family: monospace; color: #07111f; font-size: 11px;">
-            <b style="font-size: 13px; color: #047857;">📡 GROUND STATION ${st.code}</b><br/>
+          <div style="font-family: monospace; color: #000000; font-size: 11px;">
+            <b style="font-size: 13px; color: #000000;">📡 GROUND STATION ${st.code}</b><br/>
             <span>Location: <strong>${st.city}, ${st.country}</strong></span><br/>
             <span>Signal Strength: <strong>${st.signal_pct ?? 94}%</strong></span>
           </div>
@@ -106,27 +108,24 @@ function GroundStationWorldMap({ stations = [], communications = [] }) {
     });
 
     // Render Active Communication Links (Polylines)
-    // Example: SAT-01 ↔ MAD-01, SAT-02 ↔ BLR-01
     const links = [
-      { sat: 'SAT-01', station: 'MAD-01', color: '#38bdf8' },
-      { sat: 'SAT-02', station: 'BLR-01', color: '#34d399' }
+      { sat: 'SAT-01', station: 'MAD-01', color: '#ffffff' },
+      { sat: 'SAT-02', station: 'BLR-01', color: '#999999' }
     ];
 
     links.forEach(link => {
       const st = stationCoords[link.station];
       const sat = satCoords[link.sat];
       if (st && sat) {
-        // Satellite marker
         L.marker([sat[0], sat[1]], { icon: satIcon })
-          .bindPopup(`<div style="font-family: monospace; color: #07111f; font-size: 11px;"><b>🛰 ${sat[2]}</b></div>`)
+          .bindPopup(`<div style="font-family: monospace; color: #000000; font-size: 11px;"><b>🛰 ${sat[2]}</b></div>`)
           .addTo(map);
 
-        // Polyline Link
         L.polyline([[st[0], st[1]], [sat[0], sat[1]]], {
           color: link.color,
           weight: 2,
-          dashArray: '8, 8',
-          opacity: 0.85
+          dashArray: '6, 6',
+          opacity: 0.9
         }).addTo(map);
       }
     });
@@ -134,18 +133,18 @@ function GroundStationWorldMap({ stations = [], communications = [] }) {
   }, [stations, communications]);
 
   return (
-    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-      <div style={{ background: 'rgba(15, 23, 42, 0.9)', padding: '12px 18px', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid #3a3a3a' }}>
+      <div style={{ background: '#111111', padding: '12px 18px', borderBottom: '1px solid #242424', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>GLOBAL DOWNLINK TRAJECTORY MAP</span>
-          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>Active Ground Station Downlink Links</h4>
+          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>GLOBAL DOWNLINK TRAJECTORY MAP</span>
+          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>Active Ground Station Downlink Links</h4>
         </div>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '11px', fontFamily: 'monospace' }}>
-          <span style={{ color: '#38bdf8' }}>● SAT-01 ↔ MAD-01 (ACTIVE)</span>
-          <span style={{ color: '#34d399' }}>● SAT-02 ↔ BLR-01 (ACTIVE)</span>
+          <span style={{ color: '#ffffff' }}>● SAT-01 ↔ MAD-01 (ACTIVE)</span>
+          <span style={{ color: '#dadada' }}>● SAT-02 ↔ BLR-01 (ACTIVE)</span>
         </div>
       </div>
-      <div ref={mapRef} style={{ width: '100%', height: '360px', background: '#091322' }} />
+      <div ref={mapRef} style={{ width: '100%', height: '360px', background: '#000000' }} />
     </div>
   );
 }
@@ -185,10 +184,10 @@ export function GroundStationsPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
             <span>GLOBAL GROUND STATION NETWORK</span> · <span>DEEP SPACE TELEMETRY LINK</span>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
+          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>
             Ground Communication Terminals
           </h1>
         </div>
@@ -197,9 +196,9 @@ export function GroundStationsPage() {
 
       {/* Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
-        <MetricCard icon={Radio} label="Ground Stations" value={stations.length} sub="Worldwide Network" glowColor="#38bdf8" />
-        <MetricCard icon={Signal} label="Avg Signal Strength" value="92.4%" sub="Uplink & Downlink" glowColor="#34d399" />
-        <MetricCard icon={Activity} label="Active Sessions" value={communications.length} sub="Real-Time Links" glowColor="#c084fc" />
+        <MetricCard icon={Radio} label="Ground Stations" value={stations.length} sub="Worldwide Network" />
+        <MetricCard icon={Signal} label="Avg Signal Strength" value="92.4%" sub="Uplink & Downlink" />
+        <MetricCard icon={Activity} label="Active Sessions" value={communications.length} sub="Real-Time Links" />
       </div>
 
       {/* SECTION 1: WORLD COMMUNICATION VISUALIZATION MAP */}
@@ -208,10 +207,10 @@ export function GroundStationsPage() {
       {/* SECTION 2: GROUND STATION TERMINAL CARDS */}
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
-          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1.5px' }}>
             POSTGRESQL ground_stations TABLE
           </p>
-          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
+          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
             Deep Space Ground Terminals
           </h3>
         </div>
@@ -221,8 +220,8 @@ export function GroundStationsPage() {
             <div
               key={g.ground_station_id || g.code}
               style={{
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-                border: '1px solid rgba(56, 189, 248, 0.2)',
+                background: '#111111',
+                border: '1px solid #3a3a3a',
                 borderRadius: '16px',
                 padding: '1.5rem',
                 backdropFilter: 'blur(12px)',
@@ -233,25 +232,25 @@ export function GroundStationsPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8' }}>{g.code} · {g.country}</span>
-                  <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
+                  <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#999999' }}>{g.code} · {g.country}</span>
+                  <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#ffffff' }}>
                     {g.city} Terminal
                   </h3>
                 </div>
                 <StatusBadge status={g.status} />
               </div>
 
-              <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>SIGNAL QUALITY</small>
-                  <b style={{ fontSize: '1.3rem', color: '#38bdf8' }}>{g.signal_pct ?? 94}%</b>
+                  <small style={{ color: '#777777', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>SIGNAL QUALITY</small>
+                  <b style={{ fontSize: '1.3rem', color: '#ffffff' }}>{g.signal_pct ?? 94}%</b>
                 </div>
-                <Signal size={24} style={{ color: '#38bdf8' }} />
+                <Signal size={24} style={{ color: '#ffffff' }} />
               </div>
 
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                <p style={{ margin: '0 0 4px' }}>Connected Spacecraft: <b style={{ color: '#f8fafc' }}>{g.connected_satellite || (g.code === 'MAD-01' ? 'SAT-01 (ISS)' : g.code === 'BLR-01' ? 'SAT-02' : 'No Active Downlink')}</b></p>
-                <p style={{ margin: 0, fontFamily: 'monospace', color: '#64748b' }}>Coordinates: {g.latitude}° N, {g.longitude}° E</p>
+              <div style={{ fontSize: '11px', color: '#dadada' }}>
+                <p style={{ margin: '0 0 4px' }}>Connected Spacecraft: <b style={{ color: '#ffffff' }}>{g.connected_satellite || (g.code === 'MAD-01' ? 'SAT-01 (ISS)' : g.code === 'BLR-01' ? 'SAT-02' : 'No Active Downlink')}</b></p>
+                <p style={{ margin: 0, fontFamily: 'monospace', color: '#777777' }}>Coordinates: {g.latitude}° N, {g.longitude}° E</p>
               </div>
             </div>
           ))}
@@ -260,45 +259,45 @@ export function GroundStationsPage() {
 
       {/* SECTION 3: COMMUNICATION SESSIONS HISTORY TABLE */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-        border: '1px solid rgba(56, 189, 248, 0.2)',
+        background: '#111111',
+        border: '1px solid #3a3a3a',
         borderRadius: '16px',
         padding: '1.5rem',
         backdropFilter: 'blur(12px)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
               POSTGRESQL communication_sessions TABLE
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc' }}>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
               Communication Session Log & Downlink History
             </h3>
           </div>
-          <Radio size={20} style={{ color: '#38bdf8' }} />
+          <Radio size={20} style={{ color: '#ffffff' }} />
         </div>
 
         {communications.length > 0 ? (
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {communications.map((cs) => (
-              <div key={cs.session_id} style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={cs.session_id} style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <b style={{ fontSize: '0.95rem', color: '#f8fafc', display: 'block' }}>
+                  <b style={{ fontSize: '0.95rem', color: '#ffffff', display: 'block' }}>
                     {cs.station_code} ({cs.city}) ↔ {cs.satellite_code} ({cs.satellite_name})
                   </b>
-                  <small style={{ color: '#64748b', fontSize: '11px', fontFamily: 'monospace' }}>
+                  <small style={{ color: '#777777', fontSize: '11px', fontFamily: 'monospace' }}>
                     Started: {new Date(cs.started_at).toLocaleString()}
                   </small>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 700 }}>Signal {cs.signal_pct}%</span>
+                  <span style={{ fontSize: '12px', color: '#ffffff', fontWeight: 700 }}>Signal {cs.signal_pct}%</span>
                   <StatusBadge status={cs.status || 'NOMINAL'} size="sm" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{ padding: '2rem 0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontFamily: 'monospace' }}>
+          <div style={{ padding: '2rem 0', textAlign: 'center', color: '#777777', fontSize: '12px', fontFamily: 'monospace' }}>
             No active communication sessions recorded.
           </div>
         )}
