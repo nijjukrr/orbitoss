@@ -24,6 +24,9 @@ import OrbitMap from '../components/views/OrbitMap.jsx';
 
 export function DashboardPage({ onSelectSatellite, onSelectTab }) {
   const [data, setData] = useState(null);
+  const [sat01Orbit, setSat01Orbit] = useState(null);
+  const [orbitSourceState, setOrbitSourceState] = useState('LIVE');
+  const [lastOrbitUpdate, setLastOrbitUpdate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,8 +34,18 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.getDashboard();
-      setData(res);
+      const [dashRes, orbitRes] = await Promise.all([
+        api.getDashboard(),
+        api.getSatelliteOrbit('SAT-01').catch(() => null)
+      ]);
+      setData(dashRes);
+      if (orbitRes) {
+        setSat01Orbit(orbitRes);
+        setOrbitSourceState('LIVE');
+        setLastOrbitUpdate(new Date().toLocaleTimeString());
+      } else {
+        setOrbitSourceState('UNAVAILABLE');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,6 +57,22 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
     fetchDashboard();
   }, []);
 
+  // Poll SAT-01 orbit every 20s to stay strictly synchronized with SatellitesPage
+  useEffect(() => {
+    const timer = setInterval(() => {
+      api.getSatelliteOrbit('SAT-01')
+        .then((res) => {
+          if (res) {
+            setSat01Orbit(res);
+            setOrbitSourceState('LIVE');
+            setLastOrbitUpdate(new Date().toLocaleTimeString());
+          }
+        })
+        .catch(() => setOrbitSourceState('CACHED'));
+    }, 20000);
+    return () => clearInterval(timer);
+  }, []);
+
   if (loading) return <LoadingSkeleton height="180px" count={4} />;
   if (error) return <ErrorState message={error} onRetry={fetchDashboard} />;
 
@@ -51,12 +80,14 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
   const station = data?.station || { name: 'Astra Habitat One', altitude_km: 408, velocity_kms: 7.66, status: 'NOMINAL' };
   const resources = Array.isArray(data?.resources) ? data.resources : [];
   const alerts = Array.isArray(data?.alerts) ? data.alerts : [];
-  const events = Array.isArray(data?.events) ? data.events : [];
+
+  const currentSat01Alt = sat01Orbit?.altitude_km ?? station.altitude_km ?? 408;
+  const currentSat01Vel = sat01Orbit?.velocity_kms ?? station.velocity_kms ?? 7.66;
 
   return (
     <div style={{ display: 'grid', gap: '3.5rem' }}>
-      {/* SECTION 1: FULLSCREEN ISS HERO */}
-      <HeroSection onEnterConsole={() => onSelectTab && onSelectTab('Station')} />
+      {/* SECTION 1: FULLSCREEN HERO WITH SYNCHRONIZED SAT-01 LIVE ALTITUDE */}
+      <HeroSection onEnterConsole={() => onSelectTab && onSelectTab('Station')} liveAltitude={currentSat01Alt} />
 
       {/* SECTION 2: LIVE MISSION KPI METRICS */}
       <div>
@@ -73,17 +104,17 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
           <MetricCard icon={Users} label="Active Crew" value={summary.active_crew ?? 0} sub="On Horizon Mission" glowColor="#38bdf8" />
           <MetricCard icon={Orbit} label="Satellites" value={summary.active_satellites ?? 0} sub="Network Online" glowColor="#34d399" />
           <MetricCard icon={AlertTriangle} label="Open Alerts" value={summary.unresolved_alerts ?? 0} sub="Requires Action" glowColor="#fbbf24" />
-          <MetricCard icon={Compass} label="Station Orbit" value={`${station.altitude_km ?? 408} km`} sub={`${station.velocity_kms ?? 7.66} km/s velocity`} glowColor="#c084fc" />
+          <MetricCard icon={Compass} label="ISS Orbit Altitude" value={`${Number(currentSat01Alt).toFixed(1)} km`} sub={`${Number(currentSat01Vel).toFixed(2)} km/s velocity`} glowColor="#c084fc" />
         </div>
       </div>
 
-      {/* SECTION 3: LIVE ISS ORBIT TRACKING WITH NASA EARTH BACKDROP */}
+      {/* SECTION 3: LIVE ISS ORBIT TRACKING WITH SYNCHRONIZED API ORBIT DATA */}
       <div style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
         border: '1px solid rgba(56, 189, 248, 0.25)',
-        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.75) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/earth-orbit.jpg")',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.55) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/earth-orbit.jpg")',
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         padding: '2.5rem',
@@ -91,16 +122,17 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px' }}>
-              SECTION 02 · REAL ORBITAL TRACKING
-            </p>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '6px' }}>
+              <span>SECTION 02 · REAL ORBITAL TRACKING</span> · 
+              <span>STATUS: <b style={{ color: orbitSourceState === 'LIVE' ? '#34d399' : '#fbbf24' }}>{orbitSourceState}</b> {lastOrbitUpdate ? `(${lastOrbitUpdate})` : ''}</span>
+            </div>
             <h2 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
               International Space Station Trajectory
             </h2>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <StatusBadge status="REAL" label="SGP4 CALCULATED" />
+            <StatusBadge status={sat01Orbit?.source || 'REAL'} label="SGP4 CALCULATED" />
             <button
               onClick={() => onSelectSatellite('SAT-01')}
               style={{
@@ -123,33 +155,36 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
           </div>
         </div>
 
-        {/* Orbit Map View */}
+        {/* Orbit Map View using actual live SAT-01 orbit API response */}
         <OrbitMap
           satellite={{ code: 'SAT-01', name: 'ISS / Aurelia', orbital_source: 'REAL', norad_id: 25544 }}
-          liveOrbit={{ latitude: 49.214, longitude: -136.612, altitude_km: 420.23, velocity_kms: 7.67, source: 'REAL' }}
+          liveOrbit={sat01Orbit || { latitude: 49.214, longitude: -136.612, altitude_km: currentSat01Alt, velocity_kms: currentSat01Vel, source: 'REAL' }}
         />
       </div>
 
-      {/* SECTION 4: SPACE STATION EXTERIOR & LIFE SUPPORT */}
+      {/* SECTION 4: ASTRA HABITAT ONE SIMULATED STATION OPERATIONS */}
       <div style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
         border: '1px solid rgba(56, 189, 248, 0.25)',
-        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.82) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/iss-exterior.jpg")',
-        backgroundPosition: 'center',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.6) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/iss-exterior.jpg")',
+        backgroundPosition: 'center 30%',
         backgroundSize: 'cover',
         padding: '2.5rem',
         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px' }}>
-              SECTION 03 · HABITAT & LIFE SUPPORT
-            </p>
-            <h2 style={{ margin: '4px 0 1.5rem', fontSize: '2rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-              Astra Habitat One Station Systems
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '6px' }}>
+              <span>SECTION 03 · SIMULATED STATION OPERATIONS</span>
+            </div>
+            <h2 style={{ margin: '4px 0 4px', fontSize: '2rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+              Astra Habitat One Life Support
             </h2>
+            <p style={{ color: '#94a3b8', fontSize: '11px', fontFamily: 'monospace', margin: '0 0 1.5rem' }}>
+              NASA ISS imagery used for educational visual reference. Station telemetry is simulated.
+            </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
               {resources.map((r) => {
@@ -217,7 +252,7 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
         overflow: 'hidden',
         border: '1px solid rgba(56, 189, 248, 0.25)',
         backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.4) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/station-cupola.jpg")',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center 20%',
         backgroundSize: 'cover',
         padding: '4rem 3rem',
         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
@@ -235,7 +270,7 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
             Earth Orbital View From Cupola
           </h2>
           <p style={{ color: '#cbd5e1', fontSize: '1rem', marginTop: '0.75rem', lineHeight: 1.6 }}>
-            Astronaut observation platform overlooking low Earth orbit at an altitude of 420 kilometers.
+            Astronaut observation platform overlooking low Earth orbit at an altitude of {Number(currentSat01Alt).toFixed(1)} kilometers.
           </p>
         </div>
       </div>

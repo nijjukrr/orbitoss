@@ -128,7 +128,8 @@ export function AlertsPage() {
           <div style={{ display: 'grid', gap: '1.25rem' }}>
             {alerts.map((a) => {
               const isExpanded = expandedAlertId === a.alert_id;
-              const createdTime = new Date(a.created_at).toLocaleTimeString();
+              const createdTime = a.created_at ? new Date(a.created_at).toLocaleTimeString() : 'Recorded';
+              const resolvedTime = a.resolved_at ? new Date(a.resolved_at).toLocaleTimeString() : null;
               const isResolved = a.status === 'RESOLVED';
 
               return (
@@ -201,7 +202,7 @@ export function AlertsPage() {
                     </div>
                   </div>
 
-                  {/* Expandable DBMS Event Flow Timeline */}
+                  {/* Expandable DBMS Event Flow Timeline with Actual DB Timestamps */}
                   {isExpanded && (
                     <div style={{
                       background: 'rgba(15, 23, 42, 0.95)',
@@ -222,12 +223,12 @@ export function AlertsPage() {
                       {/* Step-by-Step Vertical DBMS Flow */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', margin: '0.5rem 0' }}>
                         {[
-                          { step: '1. TELEMETRY INSERTED', desc: 'Anomalous reading written to satellite_telemetry', icon: Database, color: '#38bdf8' },
-                          { step: '2. POSTGRES TRIGGER FIRED', desc: 'BEFORE/AFTER INSERT trigger evaluated conditions', icon: Zap, color: '#fbbf24' },
-                          { step: '3. ALERT RECORD CREATED', desc: `Alert row inserted with severity ${a.severity}`, icon: AlertTriangle, color: '#fb7185' },
-                          { step: '4. STATUS UPDATED', desc: 'Satellite status set to WARNING / DEGRADED', icon: Activity, color: '#c084fc' },
-                          { step: '5. ALERT RESOLVED', desc: isResolved ? 'Stored procedure resolve_alert() executed' : 'Awaiting operator resolution', icon: CheckCircle2, color: isResolved ? '#34d399' : '#64748b' }
-                        ].map((flow, i) => {
+                          { step: '1. TELEMETRY INSERTED', desc: 'Anomalous reading written to satellite_telemetry', timestamp: createdTime, icon: Database, color: '#38bdf8' },
+                          { step: '2. POSTGRES TRIGGER FIRED', desc: 'BEFORE/AFTER INSERT trigger evaluated conditions', timestamp: createdTime, icon: Zap, color: '#fbbf24' },
+                          { step: '3. ALERT RECORD CREATED', desc: `Alert row inserted with severity ${a.severity}`, timestamp: createdTime, icon: AlertTriangle, color: '#fb7185' },
+                          { step: '4. STATUS UPDATED', desc: 'Satellite status set to WARNING / DEGRADED', timestamp: createdTime, icon: Activity, color: '#c084fc' },
+                          { step: '5. ALERT RESOLVED', desc: isResolved ? 'Stored procedure resolve_alert() executed' : 'Awaiting operator resolution', timestamp: isResolved ? (resolvedTime || 'Resolved') : 'Pending Resolution', icon: CheckCircle2, color: isResolved ? '#34d399' : '#64748b' }
+                        ].map((flow) => {
                           const IconComp = flow.icon;
                           return (
                             <div
@@ -246,6 +247,9 @@ export function AlertsPage() {
                             >
                               <IconComp size={20} style={{ color: flow.color }} />
                               <b style={{ fontSize: '10px', fontFamily: 'monospace', color: flow.color }}>{flow.step}</b>
+                              <span style={{ fontSize: '9px', fontFamily: 'monospace', color: '#94a3b8', background: 'rgba(15, 23, 42, 0.8)', padding: '2px 6px', borderRadius: '4px' }}>
+                                {flow.timestamp}
+                              </span>
                               <p style={{ margin: 0, fontSize: '10px', color: '#cbd5e1', lineHeight: 1.3 }}>{flow.desc}</p>
                             </div>
                           );

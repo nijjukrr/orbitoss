@@ -43,14 +43,14 @@ export function StationPage() {
 
   return (
     <div style={{ display: 'grid', gap: '3rem' }}>
-      {/* Cinematic Hero Header with Real NASA ISS Interior Background */}
+      {/* Cinematic Hero Header focused on Station Hardware */}
       <div style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
-        border: '1px solid rgba(56, 189, 248, 0.3)',
-        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.5) 0%, rgba(3, 7, 18, 0.95) 100%), url("/media/nasa/iss-interior.jpg")',
-        backgroundPosition: 'center',
+        border: '1px solid rgba(56, 189, 248, 0.35)',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.45) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/iss-interior.jpg")',
+        backgroundPosition: 'center 20%',
         backgroundSize: 'cover',
         padding: '3.5rem 3rem',
         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
@@ -59,13 +59,16 @@ export function StationPage() {
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '2px', marginBottom: '8px' }}>
               <Eye size={14} />
-              <span>ASTRA HABITAT ONE · ISS INTERIOR OPERATIONS</span>
+              <span>ASTRA HABITAT ONE · SIMULATED STATION OPERATIONS</span>
             </div>
-            <h1 style={{ margin: '4px 0 0', fontSize: '2.5rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-1px' }}>
+            <h1 style={{ margin: '4px 0 4px', fontSize: '2.5rem', fontWeight: 900, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '-1px' }}>
               Station Systems & Habitat Modules
             </h1>
+            <p style={{ margin: 0, fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8' }}>
+              NASA ISS imagery used for educational visual reference. Telemetry is simulated.
+            </p>
           </div>
-          <StatusBadge status={station.status} />
+          <StatusBadge status="SIMULATED" label="SIMULATED HABITAT" />
         </div>
       </div>
 
@@ -84,7 +87,7 @@ export function StationPage() {
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
           <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
-            DETAILED ENVIRONMENTAL TELEMETRY
+            POSTGRESQL station_telemetry TABLE (SIMULATED HABITAT DATA)
           </p>
           <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
             Module Status & Atmospheric Readings
@@ -125,24 +128,24 @@ export function StationPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11px', background: 'rgba(30, 41, 59, 0.6)', padding: '12px', borderRadius: '10px', marginBottom: '12px' }}>
                 <div>
                   <span style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>TEMP</span>
-                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.temperature_c}°C</b>
+                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.temperature_c != null ? m.temperature_c : '--'}°C</b>
                 </div>
                 <div>
                   <span style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>PRESSURE</span>
-                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.pressure_kpa} kPa</b>
+                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.pressure_kpa != null ? m.pressure_kpa : '--'} kPa</b>
                 </div>
                 <div>
                   <span style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>OXYGEN</span>
-                  <b style={{ color: m.oxygen_pct < 19 ? '#fb7185' : '#34d399', fontSize: '13px' }}>{m.oxygen_pct}%</b>
+                  <b style={{ color: Number(m.oxygen_pct) < 19 ? '#fb7185' : '#34d399', fontSize: '13px' }}>{m.oxygen_pct != null ? m.oxygen_pct : '--'}%</b>
                 </div>
                 <div>
                   <span style={{ color: '#64748b', fontSize: '10px', display: 'block' }}>CO2</span>
-                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.co2_pct}%</b>
+                  <b style={{ color: '#f8fafc', fontSize: '13px' }}>{m.co2_pct != null ? m.co2_pct : '--'}%</b>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b' }}>
-                <span>Maintenance: {m.last_maintenance_on || 'Nominal'}</span>
+                <span>Maintenance: {m.last_maintenance_on ? new Date(m.last_maintenance_on).toLocaleDateString() : 'Nominal'}</span>
                 <span style={{ color: '#38bdf8', fontWeight: 600 }}>Inspect Module →</span>
               </div>
             </div>
@@ -170,7 +173,7 @@ export function StationPage() {
               </div>
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', padding: '1rem', borderRadius: '10px' }}>
                 <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>OXYGEN LEVEL</small>
-                <b style={{ fontSize: '1.25rem', color: selectedModule.oxygen_pct < 19 ? '#fb7185' : '#34d399' }}>{selectedModule.oxygen_pct}%</b>
+                <b style={{ fontSize: '1.25rem', color: Number(selectedModule.oxygen_pct) < 19 ? '#fb7185' : '#34d399' }}>{selectedModule.oxygen_pct}%</b>
               </div>
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', padding: '1rem', borderRadius: '10px' }}>
                 <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>CO2 CONCENTRATION</small>
@@ -180,7 +183,7 @@ export function StationPage() {
 
             <div style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.1)', padding: '1rem', borderRadius: '10px', fontSize: '12px', color: '#cbd5e1' }}>
               <p style={{ margin: '0 0 6px' }}>Power Draw: <b style={{ color: '#38bdf8' }}>{selectedModule.power_kw ?? 4.8} kW</b></p>
-              <p style={{ margin: '0 0 6px' }}>Last Maintenance Inspection: <b>{selectedModule.last_maintenance_on || 'Not recorded'}</b></p>
+              <p style={{ margin: '0 0 6px' }}>Last Maintenance Inspection: <b>{selectedModule.last_maintenance_on ? new Date(selectedModule.last_maintenance_on).toLocaleDateString() : 'Not recorded'}</b></p>
               <p style={{ margin: 0 }}>Telemetry Source: <b style={{ color: '#34d399' }}>PostgreSQL station_telemetry</b></p>
             </div>
           </div>

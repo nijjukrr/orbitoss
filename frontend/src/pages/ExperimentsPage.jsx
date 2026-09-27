@@ -48,19 +48,19 @@ export function ExperimentsPage() {
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
   if (error) return <ErrorState message={error} onRetry={fetchExperiments} />;
 
-  const activeCount = experiments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ACTIVE').length || 1;
+  const activeCount = experiments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ACTIVE' || e.status === 'NOMINAL').length || 1;
   const avgProgress = (experiments.reduce((acc, x) => acc + Number(x.progress_pct || 0), 0) / (experiments.length || 1)).toFixed(0);
 
   return (
     <div style={{ display: 'grid', gap: '2.5rem' }}>
-      {/* Split/Full-Width Header with NASA Destiny Laboratory Background */}
+      {/* Split/Full-Width Header with NASA Destiny Laboratory Background focused on hardware */}
       <div style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
         border: '1px solid rgba(56, 189, 248, 0.35)',
-        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.4) 0%, rgba(3, 7, 18, 0.85) 100%), url("/media/nasa/iss-lab.jpg")',
-        backgroundPosition: 'center',
+        backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.45) 0%, rgba(3, 7, 18, 0.9) 100%), url("/media/nasa/iss-lab.jpg")',
+        backgroundPosition: 'center 25%',
         backgroundSize: 'cover',
         padding: '3.5rem 3rem',
         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)',
@@ -164,7 +164,7 @@ export function ExperimentsPage() {
 
                   <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '10px 12px', borderRadius: '10px', fontSize: '12px', marginBottom: '1rem' }}>
                     <p style={{ margin: '0 0 4px', color: '#94a3b8' }}>Lead Researcher: <b style={{ color: '#f8fafc' }}>{exp.lead_researcher}</b></p>
-                    <p style={{ margin: 0, color: '#94a3b8' }}>Start Date: <b style={{ color: '#cbd5e1' }}>{exp.started_on}</b></p>
+                    <p style={{ margin: 0, color: '#94a3b8' }}>Start Date: <b style={{ color: '#cbd5e1' }}>{exp.started_on ? new Date(exp.started_on).toLocaleDateString() : 'Active'}</b></p>
                   </div>
                 </div>
 
@@ -205,7 +205,7 @@ export function ExperimentsPage() {
                     {selectedExperiment.title}
                   </h3>
                   <small style={{ color: '#94a3b8', fontSize: '11px', display: 'block', marginTop: '2px' }}>
-                    Lead Researcher: <b>{selectedExperiment.lead_researcher}</b> · Module: <b>{selectedExperiment.module_name}</b> · Start Date: <b>{selectedExperiment.started_on}</b>
+                    Lead Researcher: <b>{selectedExperiment.lead_researcher}</b> · Module: <b>{selectedExperiment.module_name}</b> · Start Date: <b>{selectedExperiment.started_on ? new Date(selectedExperiment.started_on).toLocaleDateString() : 'Active'}</b>
                   </small>
                 </div>
                 <StatusBadge status={selectedExperiment.status} />

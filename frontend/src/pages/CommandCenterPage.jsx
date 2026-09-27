@@ -253,7 +253,7 @@ export function CommandCenterPage() {
                 </b>
 
                 <small style={{ fontSize: '10px', fontFamily: 'monospace', color: timestamp ? '#34d399' : '#64748b' }}>
-                  {timestamp ? `● ${timestamp}` : 'Pending Stage'}
+                  {timestamp ? `● ${timestamp}` : 'Pending'}
                 </small>
               </div>
             );
