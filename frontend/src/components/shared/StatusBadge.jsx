@@ -4,59 +4,59 @@ export function StatusBadge({ status, label, size = 'md' }) {
   const normalized = String(status || 'NOMINAL').toUpperCase();
 
   let styles = {
-    bg: '#161616',
-    border: '1px solid #3a3a3a',
-    text: '#ffffff',
+    bg: 'var(--surface-muted)',
+    border: '1px solid var(--border-strong)',
+    text: 'var(--text-primary)',
     symbol: '●'
   };
 
   if (normalized === 'WARNING') {
     styles = {
-      bg: '#111111',
-      border: '1px solid #777777',
-      text: '#dadada',
+      bg: 'var(--surface)',
+      border: '1px solid var(--border-strong)',
+      text: 'var(--text-secondary)',
       symbol: '!'
     };
   } else if (normalized === 'CRITICAL' || normalized === 'FAILED') {
     styles = {
-      bg: '#1c1c1c',
-      border: '2px solid #ffffff',
-      text: '#ffffff',
+      bg: 'var(--surface-muted)',
+      border: '2px solid var(--text-primary)',
+      text: 'var(--text-primary)',
       symbol: '⚠'
     };
   } else if (normalized === 'RESOLVED' || normalized === 'COMPLETED') {
     styles = {
-      bg: '#0a0a0a',
-      border: '1px solid #3a3a3a',
-      text: '#999999',
+      bg: 'var(--surface)',
+      border: '1px solid var(--border)',
+      text: 'var(--text-muted)',
       symbol: '✓'
     };
   } else if (normalized === 'OFFLINE' || normalized === 'MAINTENANCE') {
     styles = {
-      bg: '#0a0a0a',
-      border: '1px solid #242424',
-      text: '#777777',
+      bg: 'var(--surface)',
+      border: '1px solid var(--border)',
+      text: 'var(--text-muted)',
       symbol: '○'
     };
   } else if (normalized === 'REAL') {
     styles = {
-      bg: '#ffffff',
-      border: '1px solid #ffffff',
-      text: '#000000',
+      bg: 'var(--button-primary-bg)',
+      border: '1px solid var(--button-primary-bg)',
+      text: 'var(--button-primary-text)',
       symbol: '●'
     };
   } else if (normalized === 'SIMULATED') {
     styles = {
-      bg: '#161616',
-      border: '1px solid #555555',
-      text: '#dadada',
+      bg: 'var(--surface-muted)',
+      border: '1px solid var(--border-strong)',
+      text: 'var(--text-secondary)',
       symbol: '◇'
     };
   } else if (normalized === 'LIVE' || normalized === 'CONNECTED') {
     styles = {
-      bg: '#1c1c1c',
-      border: '1px solid #999999',
-      text: '#ffffff',
+      bg: 'var(--surface-muted)',
+      border: '1px solid var(--border-strong)',
+      text: 'var(--text-primary)',
       symbol: '◉'
     };
   }

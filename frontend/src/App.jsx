@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ErrorBoundary } from './components/shared/ErrorBoundary.jsx';
 import { Sidebar } from './components/layout/Sidebar.jsx';
 import { Navbar } from './components/layout/Navbar.jsx';
+import { IntroExperience } from './components/intro/IntroExperience.jsx';
 
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { SatellitesPage } from './pages/SatellitesPage.jsx';
@@ -13,9 +14,23 @@ import { CommandCenterPage } from './pages/CommandCenterPage.jsx';
 import { AlertsPage } from './pages/AlertsPage.jsx';
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('orbitops-theme') || 'dark';
+  });
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [selectedSatelliteCode, setSelectedSatelliteCode] = useState('SAT-01');
   const [notification, setNotification] = useState('');
+
+  // Synchronize document data-theme attribute
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('orbitops-theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const handleSelectSatellite = (code) => {
     setSelectedSatelliteCode(code);
@@ -51,21 +66,42 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#030712', color: '#f8fafc', fontFamily: 'Manrope, system-ui, sans-serif' }}>
+      {/* Intro Experience Overlay */}
+      {showIntro && (
+        <IntroExperience onEnter={() => setShowIntro(false)} />
+      )}
+
+      {/* Main Mission Control Application */}
+      <div
+        style={{
+          display: 'flex',
+          minHeight: '100vh',
+          background: 'var(--page-bg)',
+          color: 'var(--text-primary)',
+          fontFamily: 'Manrope, system-ui, sans-serif',
+          opacity: showIntro ? 0 : 1,
+          transform: showIntro ? 'scale(0.97)' : 'scale(1)',
+          transition: 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+      >
         {/* Navigation Sidebar */}
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Content Region */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Top Header Navbar */}
-          <Navbar onEmergencyTriggered={handleEmergencyTriggered} />
+          <Navbar
+            onEmergencyTriggered={handleEmergencyTriggered}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
+          />
 
           {/* Emergency Trigger Toast Notification */}
           {notification && (
             <div style={{
-              background: 'linear-gradient(90deg, rgba(244, 63, 94, 0.2), rgba(245, 158, 11, 0.2))',
-              borderBottom: '1px solid rgba(244, 63, 94, 0.4)',
-              color: '#fb7185',
+              background: 'var(--surface-muted)',
+              borderBottom: '1px solid var(--border-strong)',
+              color: 'var(--text-primary)',
               padding: '0.75rem 2rem',
               fontSize: '0.875rem',
               fontFamily: 'monospace',
@@ -77,7 +113,8 @@ export default function App() {
               <span>{notification}</span>
               <button
                 onClick={() => setNotification('')}
-                style={{ background: 'none', border: 'none', color: '#fb7185', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700 }}
+                aria-label="Dismiss notification"
+                style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700 }}
               >
                 ✕
               </button>

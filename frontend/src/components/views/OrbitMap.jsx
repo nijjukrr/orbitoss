@@ -4,6 +4,7 @@ import L from 'leaflet';
 export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], groundStations = [] }) {
   const mapRef = useRef(null);
   const leafletMap = useRef(null);
+  const tileLayerRef = useRef(null);
   const markerRef = useRef(null);
   const trackRef = useRef(null);
   const stationGroupRef = useRef(null);
@@ -30,7 +31,12 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
       attributionControl: false
     });
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const tileUrl = isLight
+      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+      : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+
+    tileLayerRef.current = L.tileLayer(tileUrl, {
       maxZoom: 18,
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
     }).addTo(map);
@@ -38,7 +44,21 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
     stationGroupRef.current = L.layerGroup().addTo(map);
     leafletMap.current = map;
 
+    // Observe theme changes
+    const observer = new MutationObserver(() => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newUrl = currentTheme === 'light'
+        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+      if (tileLayerRef.current) {
+        tileLayerRef.current.setUrl(newUrl);
+      }
+    });
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     return () => {
+      observer.disconnect();
       map.remove();
       leafletMap.current = null;
     };
@@ -52,23 +72,27 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
     if (lat != null && lon != null) {
       map.panTo([lat, lon], { animate: true, duration: 1 });
 
-      // Satellite Icon: White circle with black center per strict monochrome rule
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const outerColor = isLight ? '#000000' : '#ffffff';
+      const innerColor = isLight ? '#ffffff' : '#000000';
+
+      // Satellite Icon: High-contrast monochrome circle with contrasting center core
       const satIcon = L.divIcon({
         className: 'custom-sat-icon',
         html: `<div style="
-          width: 28px;
-          height: 28px;
-          background: #ffffff;
-          border: 2px solid #ffffff;
+          width: 26px;
+          height: 26px;
+          background: ${outerColor};
+          border: 2px solid ${outerColor};
           border-radius: 50%;
-          box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
           display: grid;
           place-items: center;
         ">
-          <div style="width: 10px; height: 10px; background: #000000; border-radius: 50%;"></div>
+          <div style="width: 10px; height: 10px; background: ${innerColor}; border-radius: 50%;"></div>
         </div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
       });
 
       const popupContent = `
@@ -122,8 +146,11 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
       }
       if (currentSegment.length > 0) segments.push(currentSegment);
 
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const lineColor = isLight ? (source === 'REAL' ? '#000000' : '#555555') : (source === 'REAL' ? '#ffffff' : '#777777');
+
       trackRef.current = L.polyline(segments, {
-        color: source === 'REAL' ? '#ffffff' : '#777777',
+        color: lineColor,
         weight: 2,
         opacity: 0.9,
         dashArray: source === 'REAL' ? 'none' : '6, 6'
@@ -131,24 +158,28 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
     }
   }, [lat, lon, alt, vel, source, orbitHistory]);
 
-  // Render Ground Stations: White Square / Ring Icons
+  // Render Ground Stations: Monochrome Square / Ring Icons
   useEffect(() => {
     const map = leafletMap.current;
     if (!map || !stationGroupRef.current) return;
 
     stationGroupRef.current.clearLayers();
 
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const bg = isLight ? '#ffffff' : '#000000';
+    const fg = isLight ? '#000000' : '#ffffff';
+
     const stationIcon = L.divIcon({
       className: 'custom-station-icon',
       html: `<div style="
         width: 22px;
         height: 22px;
-        background: #000000;
-        border: 2px solid #ffffff;
+        background: ${bg};
+        border: 2px solid ${fg};
         border-radius: 4px;
         display: grid;
         place-items: center;
-        color: #ffffff;
+        color: ${fg};
         font-size: 11px;
         font-weight: bold;
       ">◒</div>`,
@@ -186,7 +217,7 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
       <div className="panel-header" style={{ marginBottom: '10px' }}>
         <div>
           <p className="eyebrow">GROUND TRACK & TRAJECTORY</p>
-          <h3 style={{ color: '#ffffff' }}>Live Orbital Visualization</h3>
+          <h3 style={{ color: 'var(--text-primary)' }}>Live Orbital Visualization</h3>
         </div>
         <span className={`orbit-source-badge ${source.toLowerCase()}`}>
           ● {source === 'REAL' ? `REAL TRACKED ISS (NORAD ${noradId || 25544})` : 'SIMULATED MISSION ORBIT'}

@@ -71,10 +71,10 @@ export function CrewPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1px' }}>
             <span>HORIZON MISSION OR-26</span> · <span>CREW SHIFT & WORKLOAD MANAGEMENT</span>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>
+          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             Astronaut Roster & Operations Schedule
           </h1>
         </div>
@@ -85,14 +85,15 @@ export function CrewPage() {
             alignItems: 'center',
             gap: '8px',
             padding: '0.65rem 1.25rem',
-            background: '#ffffff',
-            border: '1px solid #ffffff',
-            borderRadius: '10px',
-            color: '#000000',
+            background: 'var(--button-primary-bg)',
+            border: '1px solid var(--button-primary-bg)',
+            borderRadius: '8px',
+            color: 'var(--button-primary-text)',
             fontWeight: 900,
             fontSize: '0.875rem',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(255, 255, 255, 0.2)'
+            boxShadow: 'var(--card-shadow)',
+            transition: 'all 0.2s ease'
           }}
         >
           <Plus size={16} /> Assign Crew Task
@@ -101,26 +102,25 @@ export function CrewPage() {
 
       {/* SECTION 1: CURRENT CREW SHIFT TIMELINE VISUALIZATION */}
       <div style={{
-        background: '#111111',
-        border: '1px solid #3a3a3a',
-        borderRadius: '16px',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
         padding: '1.75rem',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5)'
+        boxShadow: 'var(--card-shadow)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1.5px' }}>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1.5px' }}>
               24-HOUR ORBITAL SCHEDULE
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase' }}>
               Current Crew Shift Timeline
             </h3>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#1c1c1c', padding: '6px 14px', borderRadius: '8px', border: '1px solid #3a3a3a' }}>
-            <Clock size={14} style={{ color: '#ffffff' }} />
-            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#ffffff', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--surface-muted)', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+            <Clock size={14} style={{ color: 'var(--text-primary)' }} />
+            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text-primary)', fontWeight: 700 }}>
               CURRENT ISS UTC TIME: {new Date().toUTCString().slice(17, 25)}
             </span>
           </div>
@@ -136,26 +136,26 @@ export function CrewPage() {
             <div
               key={shift.title}
               style={{
-                background: shift.active ? '#1c1c1c' : '#0a0a0a',
-                border: `1px solid ${shift.active ? '#ffffff' : '#242424'}`,
-                borderRadius: '12px',
+                background: shift.active ? 'var(--surface-muted)' : 'var(--surface)',
+                border: `1px solid ${shift.active ? 'var(--text-primary)' : 'var(--border)'}`,
+                borderRadius: '8px',
                 padding: '1.25rem',
                 position: 'relative'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <b style={{ fontSize: '12px', fontFamily: 'monospace', color: shift.active ? '#ffffff' : '#777777' }}>
+                <b style={{ fontSize: '12px', fontFamily: 'monospace', color: shift.active ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                   {shift.title}
                 </b>
                 {shift.active && (
-                  <span style={{ background: '#ffffff', color: '#000000', fontSize: '9px', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', fontFamily: 'monospace' }}>
+                  <span style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontSize: '9px', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', fontFamily: 'monospace' }}>
                     ● ACTIVE SHIFT
                   </span>
                 )}
               </div>
 
-              <p style={{ margin: '0 0 6px', fontSize: '0.9rem', color: '#ffffff', fontWeight: 700 }}>{shift.leader}</p>
-              <small style={{ color: '#777777', fontSize: '11px', display: 'block' }}>{shift.desc}</small>
+              <p style={{ margin: '0 0 6px', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 700 }}>{shift.leader}</p>
+              <small style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block' }}>{shift.desc}</small>
             </div>
           ))}
         </div>
@@ -164,10 +164,10 @@ export function CrewPage() {
       {/* SECTION 2: ASTRONAUT ROSTER & WORKLOAD VISUALIZATION */}
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
-          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1.5px' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1.5px' }}>
             ASTRONAUT ROSTER & AVAILABILITY
           </p>
-          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
+          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase' }}>
             On-Duty Crew Workload Breakdown
           </h3>
         </div>
@@ -187,11 +187,11 @@ export function CrewPage() {
               <div
                 key={c.crew_id}
                 style={{
-                  background: '#111111',
-                  border: '1px solid #3a3a3a',
-                  borderRadius: '16px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
                   padding: '1.5rem',
-                  backdropFilter: 'blur(12px)',
+                  boxShadow: 'var(--card-shadow)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
@@ -201,14 +201,14 @@ export function CrewPage() {
                 <div>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
                     <div style={{
-                      width: '52px',
-                      height: '52px',
+                      width: '48px',
+                      height: '48px',
                       borderRadius: '50%',
-                      background: '#1c1c1c',
-                      border: '1px solid #ffffff',
+                      background: 'var(--surface-muted)',
+                      border: '1px solid var(--border-strong)',
                       display: 'grid',
                       placeItems: 'center',
-                      color: '#ffffff',
+                      color: 'var(--text-primary)',
                       fontWeight: 900,
                       fontSize: '1.1rem',
                       fontFamily: 'monospace'
@@ -218,24 +218,24 @@ export function CrewPage() {
 
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#999999' }}>{c.role || 'Astronaut'}</span>
+                        <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{c.role || 'Astronaut'}</span>
                         <StatusBadge status={c.status || 'ACTIVE'} size="sm" />
                       </div>
 
-                      <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#ffffff' }}>
+                      <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                         {c.full_name}
                       </h3>
 
-                      <small style={{ color: '#777777', fontSize: '11px', display: 'block', marginTop: '2px' }}>
-                        Country: <b>{c.nationality}</b> · Shift: <b style={{ color: '#ffffff' }}>{shiftInfo.name}</b>
+                      <small style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginTop: '2px' }}>
+                        Country: <b>{c.nationality}</b> · Shift: <b style={{ color: 'var(--text-primary)' }}>{shiftInfo.name}</b>
                       </small>
                     </div>
                   </div>
 
                   {/* Current Active Task */}
-                  <div style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '10px 14px', borderRadius: '10px', marginBottom: '1rem' }}>
-                    <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#999999', display: 'block' }}>CURRENT TASK</span>
-                    <b style={{ fontSize: '12px', color: '#ffffff', display: 'block', marginTop: '2px' }}>
+                  <div style={{ background: 'var(--surface-muted)', border: '1px solid var(--border)', padding: '10px 14px', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', display: 'block' }}>CURRENT TASK</span>
+                    <b style={{ fontSize: '12px', color: 'var(--text-primary)', display: 'block', marginTop: '2px' }}>
                       {activeTask ? activeTask.title : 'Routine Habitat Monitoring'}
                     </b>
                   </div>
@@ -243,23 +243,23 @@ export function CrewPage() {
                   {/* Workload Completion Bar */}
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'monospace', marginBottom: '4px' }}>
-                      <span style={{ color: '#777777' }}>WORKLOAD PROGRESS</span>
-                      <b style={{ color: '#ffffff' }}>{completionPct}%</b>
+                      <span style={{ color: 'var(--text-muted)' }}>WORKLOAD PROGRESS</span>
+                      <b style={{ color: 'var(--text-primary)' }}>{completionPct}%</b>
                     </div>
-                    <div style={{ height: '8px', borderRadius: '10px', background: '#242424', overflow: 'hidden' }}>
-                      <div style={{ width: `${completionPct}%`, height: '100%', background: '#ffffff', borderRadius: 'inherit' }} />
+                    <div style={{ height: '8px', borderRadius: '10px', background: 'var(--border)', overflow: 'hidden' }}>
+                      <div style={{ width: `${completionPct}%`, height: '100%', background: 'var(--text-primary)', borderRadius: 'inherit' }} />
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: '#0a0a0a', padding: '10px 14px', borderRadius: '10px', textAlign: 'center', border: '1px solid #242424' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'var(--surface-muted)', padding: '10px 14px', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--border)' }}>
                   <div>
-                    <b style={{ fontSize: '1.25rem', color: '#ffffff', display: 'block' }}>{c.open_tasks ?? 0}</b>
-                    <span style={{ fontSize: '10px', color: '#777777', fontFamily: 'monospace' }}>OPEN TASKS</span>
+                    <b style={{ fontSize: '1.25rem', color: 'var(--text-primary)', display: 'block' }}>{c.open_tasks ?? 0}</b>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>OPEN TASKS</span>
                   </div>
                   <div>
-                    <b style={{ fontSize: '1.25rem', color: '#dadada', display: 'block' }}>{c.completed_tasks ?? 0}</b>
-                    <span style={{ fontSize: '10px', color: '#777777', fontFamily: 'monospace' }}>COMPLETED</span>
+                    <b style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', display: 'block' }}>{c.completed_tasks ?? 0}</b>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>COMPLETED</span>
                   </div>
                 </div>
               </div>
@@ -270,31 +270,31 @@ export function CrewPage() {
 
       {/* SECTION 3: ASSIGNED TASK LOG TABLE */}
       <div style={{
-        background: '#111111',
-        border: '1px solid #3a3a3a',
-        borderRadius: '16px',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
         padding: '1.5rem',
-        backdropFilter: 'blur(12px)'
+        boxShadow: 'var(--card-shadow)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div>
-            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1px' }}>
               POSTGRESQL crew_tasks TABLE
             </p>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Assigned Operational Work Items
             </h3>
           </div>
-          <CheckSquare size={20} style={{ color: '#ffffff' }} />
+          <CheckSquare size={20} style={{ color: 'var(--text-primary)' }} />
         </div>
 
         {tasks.length > 0 ? (
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {tasks.map((t) => (
-              <div key={t.task_id} style={{ background: '#1c1c1c', border: '1px solid #242424', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={t.task_id} style={{ background: 'var(--surface-muted)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <b style={{ fontSize: '0.95rem', color: '#ffffff', display: 'block' }}>{t.title}</b>
-                  <small style={{ color: '#999999', fontSize: '11px' }}>Assignee: {t.assignee || 'Unassigned'} · Module: {t.module_name || 'Station Wide'}</small>
+                  <b style={{ fontSize: '0.95rem', color: 'var(--text-primary)', display: 'block' }}>{t.title}</b>
+                  <small style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Assignee: {t.assignee || 'Unassigned'} · Module: {t.module_name || 'Station Wide'}</small>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <StatusBadge status={t.priority} size="sm" />
@@ -304,7 +304,7 @@ export function CrewPage() {
             ))}
           </div>
         ) : (
-          <div style={{ padding: '2rem 0', textAlign: 'center', color: '#777777', fontSize: '12px', fontFamily: 'monospace' }}>
+          <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'monospace' }}>
             No pending crew tasks recorded.
           </div>
         )}
@@ -314,11 +314,11 @@ export function CrewPage() {
       <Modal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} title="Assign New Crew Task">
         <form onSubmit={handleCreateTask} style={{ display: 'grid', gap: '1.25rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#999999', marginBottom: '6px' }}>ASSIGN TO ASTRONAUT</label>
+            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '6px' }}>ASSIGN TO ASTRONAUT</label>
             <select
               value={selectedCrewId}
               onChange={(e) => setSelectedCrewId(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#000000', border: '1px solid #3a3a3a', color: '#ffffff' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--surface-muted)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             >
               {crew.map((c) => (
                 <option key={c.crew_id} value={c.crew_id}>{c.full_name} ({c.role})</option>
@@ -327,14 +327,14 @@ export function CrewPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: '#999999', marginBottom: '6px' }}>TASK TITLE / INSTRUCTIONS</label>
+            <label style={{ display: 'block', fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '6px' }}>TASK TITLE / INSTRUCTIONS</label>
             <input
               type="text"
               placeholder="e.g. Inspect HAB module thermal seal"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               required
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#000000', border: '1px solid #3a3a3a', color: '#ffffff' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--surface-muted)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -344,9 +344,9 @@ export function CrewPage() {
             style={{
               padding: '0.75rem',
               borderRadius: '8px',
-              background: '#ffffff',
-              border: '1px solid #ffffff',
-              color: '#000000',
+              background: 'var(--button-primary-bg)',
+              border: '1px solid var(--button-primary-bg)',
+              color: 'var(--button-primary-text)',
               fontWeight: 900,
               cursor: 'pointer'
             }}

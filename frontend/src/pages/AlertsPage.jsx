@@ -58,16 +58,16 @@ export function AlertsPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#999999', letterSpacing: '1px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1px' }}>
             <span>CENTRAL INCIDENT MANAGEMENT</span> · <span>POSTGRESQL TRIGGER PIPELINE</span>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>
+          <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             Mission Control Alert & Event Flow Board
           </h1>
         </div>
 
         {/* Filter Tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', background: '#111111', padding: '4px', borderRadius: '10px', border: '1px solid #3a3a3a' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-muted)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
           {['ALL', 'OPEN', 'RESOLVED'].map((f) => (
             <button
               key={f}
@@ -76,8 +76,8 @@ export function AlertsPage() {
                 padding: '6px 14px',
                 borderRadius: '6px',
                 border: 'none',
-                background: filter === f ? '#ffffff' : 'transparent',
-                color: filter === f ? '#000000' : '#999999',
+                background: filter === f ? 'var(--button-primary-bg)' : 'transparent',
+                color: filter === f ? 'var(--button-primary-text)' : 'var(--text-secondary)',
                 fontWeight: filter === f ? 800 : 500,
                 fontSize: '12px',
                 cursor: 'pointer'
@@ -89,40 +89,40 @@ export function AlertsPage() {
         </div>
       </div>
 
-      {/* Priority Summary Counters - Monochrome High Contrast */}
+      {/* Priority Summary Counters */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
-        <div style={{ background: '#111111', border: '2px solid #ffffff', padding: '1.25rem', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <AlertTriangle size={32} style={{ color: '#ffffff' }} />
+        <div style={{ background: 'var(--surface)', border: '2px solid var(--text-primary)', padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: 'var(--card-shadow)' }}>
+          <AlertTriangle size={30} style={{ color: 'var(--text-primary)' }} />
           <div>
-            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#ffffff', display: 'block' }}>⚠ CRITICAL ALERTS</span>
-            <b style={{ fontSize: '1.75rem', color: '#ffffff' }}>{criticalCount}</b>
+            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-primary)', display: 'block' }}>⚠ CRITICAL ALERTS</span>
+            <b style={{ fontSize: '1.75rem', color: 'var(--text-primary)' }}>{criticalCount}</b>
           </div>
         </div>
 
-        <div style={{ background: '#111111', border: '1px solid #777777', padding: '1.25rem', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <AlertTriangle size={32} style={{ color: '#dadada' }} />
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: 'var(--card-shadow)' }}>
+          <AlertTriangle size={30} style={{ color: 'var(--text-secondary)' }} />
           <div>
-            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#dadada', display: 'block' }}>! WARNING ALERTS</span>
-            <b style={{ fontSize: '1.75rem', color: '#ffffff' }}>{warningCount}</b>
+            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-secondary)', display: 'block' }}>! WARNING ALERTS</span>
+            <b style={{ fontSize: '1.75rem', color: 'var(--text-primary)' }}>{warningCount}</b>
           </div>
         </div>
 
-        <div style={{ background: '#0a0a0a', border: '1px solid #3a3a3a', padding: '1.25rem', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <CheckCircle2 size={32} style={{ color: '#999999' }} />
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: 'var(--card-shadow)' }}>
+          <CheckCircle2 size={30} style={{ color: 'var(--text-muted)' }} />
           <div>
-            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#999999', display: 'block' }}>✓ RESOLVED ALERTS</span>
-            <b style={{ fontSize: '1.75rem', color: '#ffffff' }}>{resolvedCount}</b>
+            <span style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', display: 'block' }}>✓ RESOLVED ALERTS</span>
+            <b style={{ fontSize: '1.75rem', color: 'var(--text-primary)' }}>{resolvedCount}</b>
           </div>
         </div>
       </div>
 
       {/* Alerts List Table with DBMS Event Flow Timeline */}
       <div style={{
-        background: '#111111',
-        border: '1px solid #3a3a3a',
-        borderRadius: '16px',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
         padding: '1.5rem',
-        backdropFilter: 'blur(12px)'
+        boxShadow: 'var(--card-shadow)'
       }}>
         {alerts.length > 0 ? (
           <div style={{ display: 'grid', gap: '1.25rem' }}>
@@ -137,11 +137,11 @@ export function AlertsPage() {
                 <div
                   key={a.alert_id}
                   style={{
-                    background: '#1c1c1c',
-                    border: isCritical ? '2px solid #ffffff' : isResolved ? '1px solid #3a3a3a' : '1px solid #777777',
-                    borderRadius: '14px',
+                    background: 'var(--surface-muted)',
+                    border: isCritical ? '2px solid var(--text-primary)' : isResolved ? '1px solid var(--border)' : '1px solid var(--border-strong)',
+                    borderRadius: '10px',
                     overflow: 'hidden',
-                    transition: 'all 0.25s ease'
+                    transition: 'all 0.2s ease'
                   }}
                 >
                   <div
@@ -158,12 +158,12 @@ export function AlertsPage() {
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                       <StatusBadge status={a.severity} />
                       <div>
-                        <b style={{ fontSize: '1.05rem', color: '#ffffff', display: 'block' }}>
+                        <b style={{ fontSize: '1.05rem', color: 'var(--text-primary)', display: 'block' }}>
                           {(a.alert_type || 'ALERT').replace('_', ' ')}
                         </b>
-                        <p style={{ margin: '4px 0 6px', fontSize: '0.9rem', color: '#dadada' }}>{a.message}</p>
-                        <small style={{ color: '#777777', fontSize: '11px', fontFamily: 'monospace' }}>
-                          Target: <b style={{ color: '#ffffff' }}>{a.satellite_code || a.module_code || 'SYSTEM'}</b> · Created: {exactCreatedTime}
+                        <p style={{ margin: '4px 0 6px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{a.message}</p>
+                        <small style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'monospace' }}>
+                          Target: <b style={{ color: 'var(--text-primary)' }}>{a.satellite_code || a.module_code || 'SYSTEM'}</b> · Created: {exactCreatedTime}
                         </small>
                       </div>
                     </div>
@@ -179,10 +179,10 @@ export function AlertsPage() {
                           disabled={resolvingId === a.alert_id}
                           style={{
                             padding: '0.6rem 1.25rem',
-                            borderRadius: '8px',
-                            background: '#ffffff',
-                            border: '1px solid #ffffff',
-                            color: '#000000',
+                            borderRadius: '6px',
+                            background: 'var(--button-primary-bg)',
+                            border: '1px solid var(--button-primary-bg)',
+                            color: 'var(--button-primary-text)',
                             fontWeight: 900,
                             fontSize: '0.85rem',
                             cursor: 'pointer'
@@ -191,36 +191,36 @@ export function AlertsPage() {
                           {resolvingId === a.alert_id ? 'Executing procedure...' : '✔ Resolve Alert'}
                         </button>
                       ) : (
-                        <span style={{ fontSize: '11px', color: '#999999', fontFamily: 'monospace' }}>RESOLVED IN DB</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>RESOLVED IN DB</span>
                       )}
 
                       <button
-                        style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', padding: '4px' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '4px' }}
                       >
                         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Expandable DBMS Event Flow Timeline with Accurate Transaction Notes */}
+                  {/* Expandable DBMS Event Flow Timeline */}
                   {isExpanded && (
                     <div style={{
-                      background: '#000000',
-                      borderTop: '1px solid #3a3a3a',
+                      background: 'var(--surface)',
+                      borderTop: '1px solid var(--border)',
                       padding: '1.5rem',
                       display: 'grid',
                       gap: '1rem'
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#ffffff', letterSpacing: '1px' }}>
+                        <span style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-primary)', letterSpacing: '1px' }}>
                           DBMS EVENT & TRIGGER EXECUTION PIPELINE
                         </span>
-                        <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#777777' }}>
+                        <span style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
                           Alert ID: {a.alert_id}
                         </span>
                       </div>
 
-                      {/* Step-by-Step Vertical DBMS Flow - Explicitly Avoid Invented Precision */}
+                      {/* Step-by-Step Vertical DBMS Flow */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', margin: '0.5rem 0' }}>
                         {[
                           { step: '1. TELEMETRY INSERTED', desc: 'Anomalous reading written to satellite_telemetry', note: 'Derived from alert creation transaction', icon: Database },
@@ -234,9 +234,9 @@ export function AlertsPage() {
                             <div
                               key={flow.step}
                               style={{
-                                background: '#111111',
-                                border: '1px solid #3a3a3a',
-                                borderRadius: '10px',
+                                background: 'var(--surface-muted)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '8px',
                                 padding: '1rem 0.75rem',
                                 textAlign: 'center',
                                 display: 'flex',
@@ -245,12 +245,12 @@ export function AlertsPage() {
                                 gap: '6px'
                               }}
                             >
-                              <IconComp size={20} style={{ color: '#ffffff' }} />
-                              <b style={{ fontSize: '10px', fontFamily: 'monospace', color: '#ffffff' }}>{flow.step}</b>
-                              <span style={{ fontSize: '9px', fontFamily: 'monospace', color: '#999999', background: '#1c1c1c', padding: '2px 6px', borderRadius: '4px', border: '1px solid #242424' }}>
+                              <IconComp size={18} style={{ color: 'var(--text-primary)' }} />
+                              <b style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>{flow.step}</b>
+                              <span style={{ fontSize: '9px', fontFamily: 'monospace', color: 'var(--text-muted)', background: 'var(--surface)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border)' }}>
                                 {flow.note}
                               </span>
-                              <p style={{ margin: 0, fontSize: '10px', color: '#dadada', lineHeight: 1.3 }}>{flow.desc}</p>
+                              <p style={{ margin: 0, fontSize: '10px', color: 'var(--text-secondary)', lineHeight: 1.3 }}>{flow.desc}</p>
                             </div>
                           );
                         })}
@@ -262,7 +262,7 @@ export function AlertsPage() {
             })}
           </div>
         ) : (
-          <div style={{ padding: '3rem 0', textAlign: 'center', color: '#777777', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+          <div style={{ padding: '3rem 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
             No alerts matching filter criteria.
           </div>
         )}
