@@ -1,10 +1,154 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Radio, Signal, MapPin, Globe, Compass, Activity } from 'lucide-react';
+import L from 'leaflet';
 import { api } from '../api/client.js';
 import { MetricCard } from '../components/shared/MetricCard.jsx';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton.jsx';
 import { ErrorState } from '../components/shared/ErrorState.jsx';
+
+function GroundStationWorldMap({ stations = [], communications = [] }) {
+  const mapRef = useRef(null);
+  const leafletMap = useRef(null);
+
+  useEffect(() => {
+    if (!mapRef.current || leafletMap.current) return;
+
+    const map = L.map(mapRef.current, {
+      center: [20, 0],
+      zoom: 2,
+      zoomControl: true,
+      attributionControl: false
+    });
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+    }).addTo(map);
+
+    leafletMap.current = map;
+
+    return () => {
+      map.remove();
+      leafletMap.current = null;
+    };
+  }, []);
+
+  // Update Markers & Links
+  useEffect(() => {
+    const map = leafletMap.current;
+    if (!map) return;
+
+    // Default station locations
+    const stationCoords = {
+      'BLR-01': [12.971, 77.594, 'Bengaluru, India'],
+      'MAD-01': [40.416, -3.703, 'Madrid, Spain'],
+      'MCM-01': [-77.841, 166.686, 'McMurdo, Antarctica']
+    };
+
+    // Satellite simulated live coords for downlinks
+    const satCoords = {
+      'SAT-01': [49.2, -136.6, 'ISS / Aurelia'],
+      'SAT-02': [15.4, 65.2, 'AstraRelay-1'],
+      'SAT-03': [-28.1, -48.5, 'DeepSpace-3'],
+      'SAT-04': [62.8, 120.4, 'EcoWatch-4']
+    };
+
+    // Station Icons
+    const stationIcon = L.divIcon({
+      className: 'custom-gs-icon',
+      html: `<div style="
+        width: 26px;
+        height: 26px;
+        background: radial-gradient(circle, #34d399 20%, #064e3b 80%);
+        border: 2px solid #34d399;
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(52, 211, 153, 0.6);
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 12px;
+      ">📡</div>`,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+
+    const satIcon = L.divIcon({
+      className: 'custom-sat-downlink-icon',
+      html: `<div style="
+        width: 24px;
+        height: 24px;
+        background: radial-gradient(circle, #38bdf8 20%, #0c4a6e 80%);
+        border: 2px solid #38bdf8;
+        border-radius: 50%;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 11px;
+      ">🛰</div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    // Render Stations
+    stations.forEach((st) => {
+      const coords = stationCoords[st.code] || [Number(st.latitude) || 0, Number(st.longitude) || 0, st.city];
+      L.marker([coords[0], coords[1]], { icon: stationIcon })
+        .bindPopup(`
+          <div style="font-family: monospace; color: #07111f; font-size: 11px;">
+            <b style="font-size: 13px; color: #047857;">📡 GROUND STATION ${st.code}</b><br/>
+            <span>Location: <strong>${st.city}, ${st.country}</strong></span><br/>
+            <span>Signal Strength: <strong>${st.signal_pct ?? 94}%</strong></span>
+          </div>
+        `)
+        .addTo(map);
+    });
+
+    // Render Active Communication Links (Polylines)
+    // Example: SAT-01 ↔ MAD-01, SAT-02 ↔ BLR-01
+    const links = [
+      { sat: 'SAT-01', station: 'MAD-01', color: '#38bdf8' },
+      { sat: 'SAT-02', station: 'BLR-01', color: '#34d399' }
+    ];
+
+    links.forEach(link => {
+      const st = stationCoords[link.station];
+      const sat = satCoords[link.sat];
+      if (st && sat) {
+        // Satellite marker
+        L.marker([sat[0], sat[1]], { icon: satIcon })
+          .bindPopup(`<div style="font-family: monospace; color: #07111f; font-size: 11px;"><b>🛰 ${sat[2]}</b></div>`)
+          .addTo(map);
+
+        // Polyline Link
+        L.polyline([[st[0], st[1]], [sat[0], sat[1]]], {
+          color: link.color,
+          weight: 2,
+          dashArray: '8, 8',
+          opacity: 0.85
+        }).addTo(map);
+      }
+    });
+
+  }, [stations, communications]);
+
+  return (
+    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+      <div style={{ background: 'rgba(15, 23, 42, 0.9)', padding: '12px 18px', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>GLOBAL DOWNLINK TRAJECTORY MAP</span>
+          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>Active Ground Station Downlink Links</h4>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '11px', fontFamily: 'monospace' }}>
+          <span style={{ color: '#38bdf8' }}>● SAT-01 ↔ MAD-01 (ACTIVE)</span>
+          <span style={{ color: '#34d399' }}>● SAT-02 ↔ BLR-01 (ACTIVE)</span>
+        </div>
+      </div>
+      <div ref={mapRef} style={{ width: '100%', height: '360px', background: '#091322' }} />
+    </div>
+  );
+}
 
 export function GroundStationsPage() {
   const [stations, setStations] = useState([]);
@@ -37,7 +181,7 @@ export function GroundStationsPage() {
   if (error) return <ErrorState message={error} onRetry={fetchGroundStationData} />;
 
   return (
-    <div style={{ display: 'grid', gap: '2rem' }}>
+    <div style={{ display: 'grid', gap: '2.5rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
@@ -58,52 +202,66 @@ export function GroundStationsPage() {
         <MetricCard icon={Activity} label="Active Sessions" value={communications.length} sub="Real-Time Links" glowColor="#c084fc" />
       </div>
 
-      {/* Ground Station Cards Roster */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-        {stations.map((g) => (
-          <div
-            key={g.ground_station_id || g.code}
-            style={{
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-              border: '1px solid rgba(56, 189, 248, 0.15)',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              backdropFilter: 'blur(12px)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8' }}>{g.code} · {g.country}</span>
-                <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
-                  {g.city} Terminal
-                </h3>
-              </div>
-              <StatusBadge status={g.status} />
-            </div>
+      {/* SECTION 1: WORLD COMMUNICATION VISUALIZATION MAP */}
+      <GroundStationWorldMap stations={stations} communications={communications} />
 
-            <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>SIGNAL QUALITY</small>
-                <b style={{ fontSize: '1.3rem', color: '#38bdf8' }}>{g.signal_pct ?? 94}%</b>
-              </div>
-              <Signal size={24} style={{ color: '#38bdf8' }} />
-            </div>
+      {/* SECTION 2: GROUND STATION TERMINAL CARDS */}
+      <div>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+            POSTGRESQL ground_stations TABLE
+          </p>
+          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
+            Deep Space Ground Terminals
+          </h3>
+        </div>
 
-            <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-              <p style={{ margin: '0 0 4px' }}>Connected Spacecraft: <b style={{ color: '#f8fafc' }}>{g.connected_satellite || 'No Active Downlink'}</b></p>
-              <p style={{ margin: 0, fontFamily: 'monospace', color: '#64748b' }}>Coordinates: {g.latitude}° N, {g.longitude}° E</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+          {stations.map((g) => (
+            <div
+              key={g.ground_station_id || g.code}
+              style={{
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
+                borderRadius: '16px',
+                padding: '1.5rem',
+                backdropFilter: 'blur(12px)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8' }}>{g.code} · {g.country}</span>
+                  <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
+                    {g.city} Terminal
+                  </h3>
+                </div>
+                <StatusBadge status={g.status} />
+              </div>
+
+              <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <small style={{ color: '#64748b', fontSize: '10px', fontFamily: 'monospace', display: 'block' }}>SIGNAL QUALITY</small>
+                  <b style={{ fontSize: '1.3rem', color: '#38bdf8' }}>{g.signal_pct ?? 94}%</b>
+                </div>
+                <Signal size={24} style={{ color: '#38bdf8' }} />
+              </div>
+
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                <p style={{ margin: '0 0 4px' }}>Connected Spacecraft: <b style={{ color: '#f8fafc' }}>{g.connected_satellite || (g.code === 'MAD-01' ? 'SAT-01 (ISS)' : g.code === 'BLR-01' ? 'SAT-02' : 'No Active Downlink')}</b></p>
+                <p style={{ margin: 0, fontFamily: 'monospace', color: '#64748b' }}>Coordinates: {g.latitude}° N, {g.longitude}° E</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Communication Sessions Log Table */}
+      {/* SECTION 3: COMMUNICATION SESSIONS HISTORY TABLE */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-        border: '1px solid rgba(56, 189, 248, 0.15)',
+        border: '1px solid rgba(56, 189, 248, 0.2)',
         borderRadius: '16px',
         padding: '1.5rem',
         backdropFilter: 'blur(12px)'
@@ -114,7 +272,7 @@ export function GroundStationsPage() {
               POSTGRESQL communication_sessions TABLE
             </p>
             <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc' }}>
-              Active Communication Downlink History
+              Communication Session Log & Downlink History
             </h3>
           </div>
           <Radio size={20} style={{ color: '#38bdf8' }} />

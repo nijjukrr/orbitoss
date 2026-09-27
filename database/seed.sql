@@ -83,9 +83,15 @@ INSERT INTO orbit_history(satellite_id, recorded_at, latitude, longitude, altitu
 SELECT s.satellite_id, now() - (i * 5 || ' minutes')::interval, 13.4 + i*0.8, 77.5 - i*1.2, 418.5, 7.66, s.orbital_source
 FROM satellites s CROSS JOIN generate_series(0,15) i WHERE s.code='SAT-01';
 
+-- Station telemetry seeded for ALL FIVE habitat modules
 INSERT INTO station_telemetry(module_id, recorded_at, temperature_c, pressure_kpa, oxygen_pct, co2_pct, power_kw)
-SELECT module_id, now() - (i || ' hours')::interval, 23.8, 101.2, 20.9, .04, 12.4
-FROM station_modules CROSS JOIN generate_series(0,12) i WHERE code='HAB-01';
+SELECT m.module_id, now() - (i || ' hours')::interval,
+  CASE m.code WHEN 'HAB-01' THEN 23.5 WHEN 'SCI-01' THEN 21.8 WHEN 'CMD-01' THEN 22.1 WHEN 'CUP-01' THEN 19.5 ELSE 18.2 END + (i*.05),
+  CASE m.code WHEN 'HAB-01' THEN 101.3 WHEN 'SCI-01' THEN 101.2 WHEN 'CMD-01' THEN 101.4 WHEN 'CUP-01' THEN 100.8 ELSE 100.5 END,
+  CASE m.code WHEN 'HAB-01' THEN 20.9 WHEN 'SCI-01' THEN 20.8 WHEN 'CMD-01' THEN 21.0 WHEN 'CUP-01' THEN 20.9 ELSE 20.7 END,
+  CASE m.code WHEN 'HAB-01' THEN 0.04 WHEN 'SCI-01' THEN 0.05 WHEN 'CMD-01' THEN 0.03 WHEN 'CUP-01' THEN 0.04 ELSE 0.04 END,
+  CASE m.code WHEN 'HAB-01' THEN 4.8 WHEN 'SCI-01' THEN 8.2 WHEN 'CMD-01' THEN 6.5 WHEN 'CUP-01' THEN 2.1 ELSE 1.8 END
+FROM station_modules m CROSS JOIN generate_series(0,12) i;
 
 INSERT INTO experiments(code, title, lead_crew_id, module_id, progress_pct, started_on)
 SELECT 'EXP-024', 'Plant Growth in Microgravity', c.crew_id, sm.module_id, 72, '2026-09-12'

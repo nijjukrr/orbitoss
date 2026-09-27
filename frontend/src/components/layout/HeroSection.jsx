@@ -1,15 +1,17 @@
 import React from 'react';
 import { Rocket, Sparkles, Orbit, ShieldCheck, Activity, ChevronDown } from 'lucide-react';
 
-export function HeroSection({ onEnterConsole }) {
+export function HeroSection({ onEnterConsole, liveAltitude }) {
+  const displayAltitude = liveAltitude ? `${Number(liveAltitude).toFixed(1)} km` : '420.2 km';
+
   return (
     <section style={{
-      minHeight: '90vh',
+      minHeight: '85vh',
       position: 'relative',
       borderRadius: '24px',
       overflow: 'hidden',
-      border: '1px solid rgba(56, 189, 248, 0.3)',
-      backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.45) 0%, rgba(3, 7, 18, 0.85) 60%, rgba(3, 7, 18, 0.98) 100%), url("/media/nasa/iss-hero.jpg")',
+      border: '1px solid rgba(56, 189, 248, 0.35)',
+      backgroundImage: 'linear-gradient(180deg, rgba(3, 7, 18, 0.35) 0%, rgba(3, 7, 18, 0.55) 50%, rgba(3, 7, 18, 0.85) 100%), url("/media/nasa/iss-hero.jpg")',
       backgroundPosition: 'center',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
@@ -17,7 +19,7 @@ export function HeroSection({ onEnterConsole }) {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      boxShadow: '0 30px 90px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.9)',
+      boxShadow: '0 30px 90px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.6)',
       marginBottom: '3rem'
     }}>
       {/* Top Mission Tag */}
@@ -38,7 +40,7 @@ export function HeroSection({ onEnterConsole }) {
           backdropFilter: 'blur(8px)'
         }}>
           <Sparkles size={14} />
-          <span>ORBITOPS MISSION CONTROL · NASA ISS ORBITAL TELEMETRY</span>
+          <span>ORBITOPS MISSION CONTROL · REAL ISS ORBITAL TRACKING (CelesTrak TLE + SGP4)</span>
         </div>
       </div>
 
@@ -52,7 +54,7 @@ export function HeroSection({ onEnterConsole }) {
           color: '#ffffff',
           lineHeight: 1.02,
           textTransform: 'uppercase',
-          textShadow: '0 10px 30px rgba(0,0,0,0.8)'
+          textShadow: '0 10px 30px rgba(0,0,0,0.9)'
         }}>
           Space Operations<br />
           <span style={{
@@ -70,13 +72,13 @@ export function HeroSection({ onEnterConsole }) {
           maxWidth: '680px',
           marginTop: '1.5rem',
           lineHeight: 1.6,
-          fontWeight: 400,
-          textShadow: '0 2px 10px rgba(0,0,0,0.8)'
+          fontWeight: 500,
+          textShadow: '0 2px 10px rgba(0,0,0,0.9)'
         }}>
           Real-time ISS orbital mechanics, SGP4 kinematics, CelesTrak live TLE feeds, PostgreSQL stored triggers, and space station habitat telemetry.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             onClick={onEnterConsole}
             style={{
@@ -100,6 +102,10 @@ export function HeroSection({ onEnterConsole }) {
           >
             <Rocket size={20} /> Enter Mission Control
           </button>
+
+          <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#38bdf8', background: 'rgba(3, 7, 18, 0.75)', padding: '10px 16px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+            ORBITAL POSITION: REAL | MISSION TELEMETRY: SIMULATED
+          </span>
         </div>
       </div>
 
@@ -110,8 +116,8 @@ export function HeroSection({ onEnterConsole }) {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: '1.5rem',
-        background: 'rgba(3, 7, 18, 0.75)',
-        border: '1px solid rgba(56, 189, 248, 0.2)',
+        background: 'rgba(3, 7, 18, 0.8)',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
         padding: '1.25rem 1.75rem',
         borderRadius: '16px',
         backdropFilter: 'blur(12px)'
@@ -136,7 +142,7 @@ export function HeroSection({ onEnterConsole }) {
           <Activity size={24} style={{ color: '#c084fc' }} />
           <div>
             <small style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>ORBIT ALTITUDE</small>
-            <b style={{ fontSize: '14px', color: '#ffffff' }}>~420 km Geodetic ISS</b>
+            <b style={{ fontSize: '14px', color: '#ffffff' }}>{displayAltitude} Geodetic ISS</b>
           </div>
         </div>
       </div>

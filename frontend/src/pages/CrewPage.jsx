@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserCheck, CheckSquare, Plus, Clock, Shield } from 'lucide-react';
+import { Users, UserCheck, CheckSquare, Plus, Clock, Shield, Activity, Calendar } from 'lucide-react';
 import { api } from '../api/client.js';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton.jsx';
@@ -57,16 +57,26 @@ export function CrewPage() {
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
   if (error) return <ErrorState message={error} onRetry={fetchCrewData} />;
 
+  // Shift Mapping per Role/Member
+  const getShiftInfo = (role, index) => {
+    const shifts = [
+      { name: 'ALPHA SHIFT', hours: '00:00 - 08:00 UTC', active: true, color: '#38bdf8' },
+      { name: 'BETA SHIFT', hours: '08:00 - 16:00 UTC', active: false, color: '#34d399' },
+      { name: 'GAMMA SHIFT', hours: '16:00 - 24:00 UTC', active: false, color: '#c084fc' }
+    ];
+    return shifts[index % 3];
+  };
+
   return (
-    <div style={{ display: 'grid', gap: '2rem' }}>
+    <div style={{ display: 'grid', gap: '2.5rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1px' }}>
-            <span>HORIZON MISSION OR-26</span> · <span>CREW & WORKLOAD MANAGEMENT</span>
+            <span>HORIZON MISSION OR-26</span> · <span>CREW SHIFT & WORKLOAD MANAGEMENT</span>
           </div>
           <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
-            Astronaut Roster & Shift Tasks
+            Astronaut Roster & Operations Schedule
           </h1>
         </div>
         <button
@@ -90,71 +100,179 @@ export function CrewPage() {
         </button>
       </div>
 
-      {/* Crew Cards Roster */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-        {crew.map((c) => {
-          const initials = (c.full_name || 'Crew Member')
-            .split(' ')
-            .map((n) => n[0])
-            .join('');
-          return (
+      {/* SECTION 1: CURRENT CREW SHIFT TIMELINE VISUALIZATION */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.7))',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
+        borderRadius: '16px',
+        padding: '1.75rem',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+              24-HOUR ORBITAL SCHEDULE
+            </p>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
+              Current Crew Shift Timeline
+            </h3>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(30, 41, 59, 0.6)', padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+            <Clock size={14} style={{ color: '#38bdf8' }} />
+            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#f8fafc', fontWeight: 700 }}>
+              CURRENT ISS UTC TIME: {new Date().toUTCString().slice(17, 25)}
+            </span>
+          </div>
+        </div>
+
+        {/* 24-Hour Visual Shift Bands */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', position: 'relative' }}>
+          {[
+            { title: 'ALPHA SHIFT (00:00 - 08:00)', leader: 'Commander', active: true, desc: 'Systems Operations & Earth Science' },
+            { title: 'BETA SHIFT (08:00 - 16:00)', leader: 'Flight Engineer', active: false, desc: 'EVAs & Microgravity Experiments' },
+            { title: 'GAMMA SHIFT (16:00 - 24:00)', leader: 'Science Officer', active: false, desc: 'Maintenance & Life Support Check' }
+          ].map((shift, idx) => (
             <div
-              key={c.crew_id}
+              key={shift.title}
               style={{
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-                border: '1px solid rgba(56, 189, 248, 0.15)',
-                borderRadius: '16px',
-                padding: '1.5rem',
-                backdropFilter: 'blur(12px)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
+                background: shift.active ? 'rgba(56, 189, 248, 0.12)' : 'rgba(30, 41, 59, 0.4)',
+                border: `1px solid ${shift.active ? '#38bdf8' : 'rgba(56, 189, 248, 0.15)'}`,
+                borderRadius: '12px',
+                padding: '1.25rem',
+                position: 'relative'
               }}
             >
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  color: '#fff',
-                  fontWeight: 800,
-                  fontSize: '1rem',
-                  fontFamily: 'monospace'
-                }}>
-                  {initials}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8' }}>{c.role || 'Astronaut'}</span>
-                  <h3 style={{ margin: '2px 0 0', fontSize: '1.15rem', fontWeight: 700, color: '#f8fafc' }}>
-                    {c.full_name}
-                  </h3>
-                  <small style={{ color: '#64748b', fontSize: '11px' }}>{c.nationality}</small>
-                </div>
-                <StatusBadge status={c.status} size="sm" />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <b style={{ fontSize: '12px', fontFamily: 'monospace', color: shift.active ? '#38bdf8' : '#94a3b8' }}>
+                  {shift.title}
+                </b>
+                {shift.active && (
+                  <span style={{ background: '#0284c7', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px', fontFamily: 'monospace' }}>
+                    ● ACTIVE SHIFT
+                  </span>
+                )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(30, 41, 59, 0.5)', padding: '10px 14px', borderRadius: '10px', textAlign: 'center' }}>
-                <div>
-                  <b style={{ fontSize: '1.2rem', color: '#38bdf8', display: 'block' }}>{c.open_tasks ?? 0}</b>
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>OPEN TASKS</span>
-                </div>
-                <div>
-                  <b style={{ fontSize: '1.2rem', color: '#34d399', display: 'block' }}>{c.completed_tasks ?? 0}</b>
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>COMPLETED</span>
-                </div>
-              </div>
+              <p style={{ margin: '0 0 6px', fontSize: '0.9rem', color: '#f8fafc', fontWeight: 700 }}>{shift.leader}</p>
+              <small style={{ color: '#64748b', fontSize: '11px', display: 'block' }}>{shift.desc}</small>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* Active Tasks Log */}
+      {/* SECTION 2: ASTRONAUT ROSTER & WORKLOAD VISUALIZATION */}
+      <div>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8', letterSpacing: '1.5px' }}>
+            ASTRONAUT ROSTER & AVAILABILITY
+          </p>
+          <h3 style={{ margin: '4px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase' }}>
+            On-Duty Crew Workload Breakdown
+          </h3>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          {crew.map((c, idx) => {
+            const initials = (c.full_name || 'Crew Member')
+              .split(' ')
+              .map((n) => n[0])
+              .join('');
+            const shiftInfo = getShiftInfo(c.role, idx);
+            const totalTasks = (c.open_tasks || 0) + (c.completed_tasks || 0);
+            const completionPct = totalTasks > 0 ? Math.round(((c.completed_tasks || 0) / totalTasks) * 100) : 100;
+            const activeTask = tasks.find(t => t.crew_id === c.crew_id && t.status !== 'COMPLETED');
+
+            return (
+              <div
+                key={c.crew_id}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
+                  border: '1px solid rgba(56, 189, 248, 0.2)',
+                  borderRadius: '16px',
+                  padding: '1.5rem',
+                  backdropFilter: 'blur(12px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '1.25rem'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div style={{
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #0284c7, #06b6d4)',
+                      display: 'grid',
+                      placeItems: 'center',
+                      color: '#fff',
+                      fontWeight: 900,
+                      fontSize: '1.1rem',
+                      fontFamily: 'monospace',
+                      boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+                    }}>
+                      {initials}
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#38bdf8' }}>{c.role || 'Astronaut'}</span>
+                        <StatusBadge status={c.status || 'ACTIVE'} size="sm" />
+                      </div>
+
+                      <h3 style={{ margin: '2px 0 0', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
+                        {c.full_name}
+                      </h3>
+
+                      <small style={{ color: '#64748b', fontSize: '11px', display: 'block', marginTop: '2px' }}>
+                        Country: <b>{c.nationality}</b> · Shift: <b style={{ color: shiftInfo.color }}>{shiftInfo.name}</b>
+                      </small>
+                    </div>
+                  </div>
+
+                  {/* Current Active Task */}
+                  <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(56, 189, 248, 0.15)', padding: '10px 14px', borderRadius: '10px', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#94a3b8', display: 'block' }}>CURRENT TASK</span>
+                    <b style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginTop: '2px' }}>
+                      {activeTask ? activeTask.title : 'Routine Habitat Monitoring'}
+                    </b>
+                  </div>
+
+                  {/* Workload Completion Bar */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'monospace', marginBottom: '4px' }}>
+                      <span style={{ color: '#64748b' }}>WORKLOAD PROGRESS</span>
+                      <b style={{ color: '#38bdf8' }}>{completionPct}%</b>
+                    </div>
+                    <div style={{ height: '8px', borderRadius: '10px', background: 'rgba(30, 41, 59, 0.8)', overflow: 'hidden' }}>
+                      <div style={{ width: `${completionPct}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #34d399)', borderRadius: 'inherit' }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(15, 23, 42, 0.8)', padding: '10px 14px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(56, 189, 248, 0.1)' }}>
+                  <div>
+                    <b style={{ fontSize: '1.25rem', color: '#38bdf8', display: 'block' }}>{c.open_tasks ?? 0}</b>
+                    <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>OPEN TASKS</span>
+                  </div>
+                  <div>
+                    <b style={{ fontSize: '1.25rem', color: '#34d399', display: 'block' }}>{c.completed_tasks ?? 0}</b>
+                    <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>COMPLETED</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* SECTION 3: ASSIGNED TASK LOG TABLE */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.6))',
-        border: '1px solid rgba(56, 189, 248, 0.15)',
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7))',
+        border: '1px solid rgba(56, 189, 248, 0.2)',
         borderRadius: '16px',
         padding: '1.5rem',
         backdropFilter: 'blur(12px)'
@@ -165,7 +283,7 @@ export function CrewPage() {
               POSTGRESQL crew_tasks TABLE
             </p>
             <h3 style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc' }}>
-              Assigned Work Items & Priorities
+              Assigned Operational Work Items
             </h3>
           </div>
           <CheckSquare size={20} style={{ color: '#38bdf8' }} />
