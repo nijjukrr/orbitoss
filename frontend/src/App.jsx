@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { get, patch, send } from './api.js';
+import OrbitMap from './OrbitMap.jsx';
 
 const tabs = ['Dashboard', 'Station', 'Crew', 'Experiments', 'Satellites', 'Ground Stations', 'Command Center', 'Alerts'];
 const fallback = {
@@ -117,7 +118,7 @@ function Dashboard({ dashboard, selectSatellite }) {
             <p className="eyebrow">SATELLITE NETWORK</p>
             <h3>Fleet status</h3>
           </div>
-          <button className="link" onClick={() => selectSatellite('SAT-03')}>Open SAT-03 →</button>
+          <button className="link" onClick={() => selectSatellite('SAT-01')}>Open SAT-01 (ISS) →</button>
         </div>
         <SatelliteMiniGrid selectSatellite={selectSatellite} />
       </section>
@@ -128,10 +129,10 @@ function Dashboard({ dashboard, selectSatellite }) {
 function SatelliteMiniGrid({ selectSatellite }) {
   const [satellites, setSatellites] = useState([]);
   const defaultSats = [
-    { code: 'SAT-01', purpose: 'Earth Observation', battery_pct: 91, status: 'NOMINAL' },
-    { code: 'SAT-02', purpose: 'Communication', battery_pct: 73, status: 'NOMINAL' },
-    { code: 'SAT-03', purpose: 'Research', battery_pct: 18, status: 'CRITICAL' },
-    { code: 'SAT-04', purpose: 'Climate Monitoring', battery_pct: 88, status: 'NOMINAL' }
+    { code: 'SAT-01', purpose: 'Real ISS Orbit & Earth Observation', battery_pct: 91, status: 'NOMINAL', orbital_source: 'REAL' },
+    { code: 'SAT-02', purpose: 'Communication Relay', battery_pct: 73, status: 'NOMINAL', orbital_source: 'SIMULATED' },
+    { code: 'SAT-03', purpose: 'Deep Space Research', battery_pct: 18, status: 'CRITICAL', orbital_source: 'SIMULATED' },
+    { code: 'SAT-04', purpose: 'Climate Monitoring', battery_pct: 88, status: 'NOMINAL', orbital_source: 'SIMULATED' }
   ];
 
   useEffect(() => {
@@ -146,7 +147,7 @@ function SatelliteMiniGrid({ selectSatellite }) {
     <div className="sat-grid">
       {satList.map(s => (
         <button className="sat-card" key={s.code} onClick={() => selectSatellite(s.code)}>
-          <span>◉ {s.code}</span>
+          <span>◉ {s.code} {s.orbital_source === 'REAL' ? '· REAL ISS' : ''}</span>
           <b>{s.purpose}</b>
           <p>Battery <strong>{s.battery_pct != null ? `${s.battery_pct}%` : 'N/A'}</strong></p>
           <em className={statusClass(s.status)}>{s.status || 'NOMINAL'}</em>
@@ -158,14 +159,36 @@ function SatelliteMiniGrid({ selectSatellite }) {
 
 function SatelliteDetail({ code }) {
   const [data, setData] = useState(null);
+  const [liveOrbit, setLiveOrbit] = useState(null);
+  const [groundStations, setGroundStations] = useState([]);
   const [error, setError] = useState('');
 
+  // Fetch Satellite & Ground Station details
   useEffect(() => {
     setData(null);
+    setLiveOrbit(null);
     setError('');
+
     get(`/satellites/${code}`)
-      .then(setData)
-      .catch(() => setError('Connect the PostgreSQL backend to show live telemetry.'));
+      .then(res => {
+        setData(res);
+        if (res?.orbit) setLiveOrbit(res.orbit);
+      })
+      .catch(() => setError('Connect the PostgreSQL backend to show live telemetry & orbits.'));
+
+    get('/ground-stations')
+      .then(setGroundStations)
+      .catch(() => {});
+  }, [code]);
+
+  // Periodic Orbit Refresh (every 4 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      get(`/satellites/${code}/orbit`)
+        .then(setLiveOrbit)
+        .catch(() => {});
+    }, 4000);
+    return () => clearInterval(interval);
   }, [code]);
 
   if (!data || !data.satellite) {
@@ -174,41 +197,66 @@ function SatelliteDetail({ code }) {
         <div className="page-title">
           <div>
             <p className="eyebrow">SATELLITE MISSION CONTROL</p>
-            <h1>{code} telemetry</h1>
+            <h1>{code} telemetry & live tracking</h1>
           </div>
         </div>
-        <div className="panel loading">{error || 'Loading telemetry…'}</div>
+        <div className="panel loading">{error || 'Loading orbital telemetry…'}</div>
       </main>
     );
   }
 
   const s = data.satellite;
   const telemetry = Array.isArray(data.telemetry) ? data.telemetry : [];
+  const orbitHistory = Array.isArray(data.orbitHistory) ? data.orbitHistory : [];
+  const source = liveOrbit?.source || s.orbital_source || 'SIMULATED';
 
   return (
     <main className="page">
       <div className="page-title">
         <div>
-          <p className="eyebrow">{s.purpose || 'Satellite Telemetry'}</p>
+          <p className="eyebrow">{s.purpose || 'Satellite Telemetry & Orbit Tracking'}</p>
           <h1>{s.code} — {s.name}</h1>
         </div>
-        <span className={statusClass(s.status)}>{s.status || 'NOMINAL'}</span>
+        <span className={`orbit-source-badge ${source.toLowerCase()}`}>
+          ● {source === 'REAL' ? `REAL TRACKED ISS (NORAD ${s.norad_id || 25544})` : 'SIMULATED ORBIT'}
+        </span>
       </div>
 
+      {/* Real Orbital Position Cards */}
+      <div style={{ marginBottom: '10px' }}>
+        <p className="eyebrow">REAL-TIME ORBIT POSITION ({source} SGP4 CALCULATED)</p>
+      </div>
       <section className="metrics">
-        <Metric icon="▣" label="BATTERY" value={s.battery_pct != null ? `${s.battery_pct}%` : 'N/A'} />
-        <Metric icon="⌁" label="ALTITUDE" value={s.altitude_km != null ? `${s.altitude_km} km` : 'N/A'} />
-        <Metric icon="☀" label="SIGNAL" value={s.signal_pct != null ? `${s.signal_pct}%` : 'N/A'} />
-        <Metric icon="♨" label="TEMPERATURE" value={s.temperature_c != null ? `${s.temperature_c}°C` : 'N/A'} />
+        <Metric icon="◒" label="LATITUDE" value={`${liveOrbit?.latitude ?? s.current_latitude ?? 0}° N`} sub="SGP4 Orbital Propagator" />
+        <Metric icon="🌐" label="LONGITUDE" value={`${liveOrbit?.longitude ?? s.current_longitude ?? 0}° E`} sub="Ground Track Coordinates" />
+        <Metric icon="⌁" label="ALTITUDE" value={`${liveOrbit?.altitude_km ?? s.current_altitude_km ?? 408} km`} sub="Geodetic Height" />
+        <Metric icon="≫" label="ORBITAL VELOCITY" value={`${liveOrbit?.velocity_kms ?? s.current_velocity_kms ?? 7.66} km/s`} sub="Spacecraft Speed" />
       </section>
 
+      {/* Interactive World Map & Ground Track */}
+      <section className="panel" style={{ padding: '20px', marginBottom: '16px' }}>
+        <OrbitMap satellite={s} liveOrbit={liveOrbit} orbitHistory={orbitHistory} groundStations={groundStations} />
+      </section>
+
+      {/* Simulated Telemetry Cards */}
+      <div style={{ marginBottom: '10px' }}>
+        <p className="eyebrow">SIMULATED SPACECRAFT TELEMETRY & HEALTH</p>
+      </div>
+      <section className="metrics">
+        <Metric icon="▣" label="BATTERY LEVEL" value={s.battery_pct != null ? `${s.battery_pct}%` : 'N/A'} sub="Simulated Battery" />
+        <Metric icon="☀" label="SIGNAL QUALITY" value={s.signal_pct != null ? `${s.signal_pct}%` : 'N/A'} sub="Simulated Signal" />
+        <Metric icon="♨" label="TEMPERATURE" value={s.temperature_c != null ? `${s.temperature_c}°C` : 'N/A'} sub="Thermal Health" />
+        <Metric icon="◈" label="STATUS" value={s.status || 'NOMINAL'} sub="Operational Roster" />
+      </section>
+
+      {/* Battery History Chart */}
       <section className="panel chart">
         <div className="panel-header">
-          <h3>Battery history</h3>
+          <h3>Simulated Battery telemetry history</h3>
           <span>Last {telemetry.length} readings</span>
         </div>
         {telemetry.length > 0 ? (
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={telemetry}>
               <defs>
                 <linearGradient id="battery" x1="0" x2="0" y1="0" y2="1">
@@ -529,7 +577,7 @@ export default function App() {
     : tab === 'Ground Stations' ? <GroundStations />
     : tab === 'Alerts' ? <Alerts />
     : tab === 'Command Center' ? <CommandCenter />
-    : <SatelliteDetail code="SAT-03" />;
+    : <SatelliteDetail code="SAT-01" />;
 
   return (
     <div className="app">

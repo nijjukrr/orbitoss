@@ -10,6 +10,7 @@ import station from './routes/station.js';
 import crew from './routes/crew.js';
 import experiments from './routes/experiments.js';
 import groundStations from './routes/groundStations.js';
+import orbits from './routes/orbits.js';
 
 const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
@@ -26,6 +27,7 @@ app.use('/api/station', station);
 app.use('/api/crew', crew);
 app.use('/api/experiments', experiments);
 app.use('/api/ground-stations', groundStations);
+app.use('/api/orbits', orbits);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

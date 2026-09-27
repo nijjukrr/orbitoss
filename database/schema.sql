@@ -168,7 +168,7 @@ CREATE TABLE experiment_results (
   recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- SATELLITES
+-- SATELLITES & REAL ORBITAL TRACKING
 CREATE TABLE satellites (
   satellite_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   mission_id UUID NOT NULL REFERENCES missions(mission_id),
@@ -176,7 +176,12 @@ CREATE TABLE satellites (
   name TEXT NOT NULL,
   purpose TEXT NOT NULL,
   status operational_status NOT NULL DEFAULT 'NOMINAL',
-  launched_on DATE NOT NULL
+  launched_on DATE NOT NULL,
+  norad_id INT,
+  tle_line1 TEXT,
+  tle_line2 TEXT,
+  tle_updated_at TIMESTAMPTZ,
+  orbital_source TEXT NOT NULL DEFAULT 'SIMULATED' CHECK (orbital_source IN ('REAL', 'SIMULATED'))
 );
 
 CREATE TABLE satellite_components (
@@ -204,7 +209,10 @@ CREATE TABLE orbit_history (
   satellite_id UUID NOT NULL REFERENCES satellites(satellite_id),
   recorded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   latitude NUMERIC(7,3) NOT NULL CHECK (latitude BETWEEN -90 AND 90),
-  longitude NUMERIC(7,3) NOT NULL CHECK (longitude BETWEEN -180 AND 180)
+  longitude NUMERIC(7,3) NOT NULL CHECK (longitude BETWEEN -180 AND 180),
+  altitude_km NUMERIC(7,2) NOT NULL DEFAULT 408.00 CHECK (altitude_km > 0),
+  velocity_kms NUMERIC(5,2) NOT NULL DEFAULT 7.66 CHECK (velocity_kms > 0),
+  source TEXT NOT NULL DEFAULT 'SIMULATED' CHECK (source IN ('REAL', 'SIMULATED'))
 );
 
 -- MAINTENANCE & INCIDENTS
@@ -294,9 +302,16 @@ CREATE INDEX idx_incidents_status ON incidents(severity, status);
 -- VIEWS
 CREATE VIEW v_latest_satellite_status AS
 SELECT DISTINCT ON (s.satellite_id) s.satellite_id, s.code, s.name, s.purpose, s.status,
-       t.altitude_km, t.velocity_kms, t.battery_pct, t.temperature_c, t.signal_pct, t.recorded_at
+       s.norad_id, s.orbital_source, s.tle_updated_at,
+       t.altitude_km, t.velocity_kms, t.battery_pct, t.temperature_c, t.signal_pct, t.recorded_at,
+       oh.latitude AS current_latitude, oh.longitude AS current_longitude,
+       oh.altitude_km AS current_altitude_km, oh.velocity_kms AS current_velocity_kms,
+       oh.source AS orbit_source
 FROM satellites s
 LEFT JOIN satellite_telemetry t ON t.satellite_id = s.satellite_id
+LEFT JOIN LATERAL (
+  SELECT * FROM orbit_history WHERE satellite_id = s.satellite_id ORDER BY recorded_at DESC LIMIT 1
+) oh ON true
 ORDER BY s.satellite_id, t.recorded_at DESC;
 
 CREATE VIEW v_dashboard_summary AS

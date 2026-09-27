@@ -39,42 +39,56 @@ INSERT INTO resource_usage(resource_id, quantity_used, logged_at)
 SELECT r.resource_id, 2.5, now() - (i || ' hours')::interval
 FROM resources r CROSS JOIN generate_series(1,6) i WHERE r.name = 'Oxygen';
 
-INSERT INTO satellites(mission_id,code,name,purpose,launched_on)
-SELECT mission_id, v.code, v.name, v.purpose, '2026-08-03' FROM missions CROSS JOIN
-(VALUES ('SAT-01','Aurelia','Earth Observation'),('SAT-02','Relay','Communication'),('SAT-03','Kepler','Research'),('SAT-04','AstraScan','Climate Monitoring')) v(code,name,purpose) WHERE missions.code='OR-26';
+-- Satellites: SAT-01 mapped to REAL tracked ISS orbital NORAD ID 25544
+INSERT INTO satellites(mission_id, code, name, purpose, launched_on, norad_id, tle_line1, tle_line2, tle_updated_at, orbital_source)
+SELECT mission_id, v.code, v.name, v.purpose, '2026-08-03'::date, v.norad_id, v.tle1, v.tle2, CASE WHEN v.tle1 IS NOT NULL THEN now() ELSE NULL END, v.orbital_source
+FROM missions CROSS JOIN
+(VALUES 
+  ('SAT-01', 'ISS / Aurelia', 'Real ISS Orbit & Earth Observation', 25544::int, 
+   '1 25544U 98067A   24095.53423984  .00014815  00000+0  26656-3 0  9993'::text,
+   '2 25544  51.6416 295.4211 0004526 102.5857 325.2635 15.49755734447387'::text,
+   'REAL'::text),
+  ('SAT-02', 'Relay-Alpha', 'Communication Relay', NULL::int, NULL::text, NULL::text, 'SIMULATED'::text),
+  ('SAT-03', 'Kepler-Deep', 'Deep Space Research', NULL::int, NULL::text, NULL::text, 'SIMULATED'::text),
+  ('SAT-04', 'AstraScan', 'Climate Monitoring', NULL::int, NULL::text, NULL::text, 'SIMULATED'::text)
+) v(code, name, purpose, norad_id, tle1, tle2, orbital_source)
+WHERE missions.code = 'OR-26';
 
-INSERT INTO satellite_components(satellite_id,name)
+INSERT INTO satellite_components(satellite_id, name)
 SELECT s.satellite_id, c.name FROM satellites s CROSS JOIN (VALUES ('Power Unit'),('Payload Computer'),('Antenna')) c(name);
 
-INSERT INTO ground_stations(code,city,country,latitude,longitude) VALUES
-('BLR-01','Bengaluru','India',12.971,77.594),('MAD-01','Madrid','Spain',40.416,-3.703),('MCM-01','McMurdo','Antarctica',-77.841,166.686);
+INSERT INTO ground_stations(code, city, country, latitude, longitude) VALUES
+('BLR-01', 'Bengaluru', 'India', 12.971, 77.594),
+('MAD-01', 'Madrid', 'Spain', 40.416, -3.703),
+('MCM-01', 'McMurdo', 'Antarctica', -77.841, 166.686);
 
-INSERT INTO communication_sessions(ground_station_id,satellite_id,started_at,signal_pct,status)
+INSERT INTO communication_sessions(ground_station_id, satellite_id, started_at, signal_pct, status)
 SELECT g.ground_station_id, s.satellite_id, now() - interval '12 minutes', 92, 'NOMINAL'
 FROM ground_stations g JOIN satellites s ON s.code='SAT-02' WHERE g.code='BLR-01';
 
-INSERT INTO communication_sessions(ground_station_id,satellite_id,started_at,signal_pct,status)
+INSERT INTO communication_sessions(ground_station_id, satellite_id, started_at, signal_pct, status)
 SELECT g.ground_station_id, s.satellite_id, now() - interval '31 minutes', 78, 'NOMINAL'
 FROM ground_stations g JOIN satellites s ON s.code='SAT-01' WHERE g.code='MAD-01';
 
-INSERT INTO satellite_telemetry(satellite_id,recorded_at,altitude_km,velocity_kms,battery_pct,solar_output_kw,temperature_c,signal_pct)
+INSERT INTO satellite_telemetry(satellite_id, recorded_at, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct)
 SELECT s.satellite_id, now() - (i || ' hours')::interval, 520 + i*.03, 7.62, 96-i*3, 2.8, 32+i, 92-i*2
 FROM satellites s CROSS JOIN generate_series(0,12) i WHERE s.code='SAT-01';
 
-INSERT INTO satellite_telemetry(satellite_id,recorded_at,altitude_km,velocity_kms,battery_pct,solar_output_kw,temperature_c,signal_pct)
+INSERT INTO satellite_telemetry(satellite_id, recorded_at, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct)
 SELECT s.satellite_id, now() - (i || ' hours')::interval, 417 + i*.02, 7.62, 18+i*.2, 1.82, 68.4, 64
 FROM satellites s CROSS JOIN generate_series(0,12) i WHERE s.code='SAT-03';
 
-INSERT INTO orbit_history(satellite_id, recorded_at, latitude, longitude)
-SELECT s.satellite_id, now() - (i || ' minutes')::interval, 12.5 + i*0.1, 77.2 + i*0.2
-FROM satellites s CROSS JOIN generate_series(0,10) i WHERE s.code='SAT-01';
+-- Orbit history ground tracks
+INSERT INTO orbit_history(satellite_id, recorded_at, latitude, longitude, altitude_km, velocity_kms, source)
+SELECT s.satellite_id, now() - (i * 5 || ' minutes')::interval, 13.4 + i*0.8, 77.5 - i*1.2, 418.5, 7.66, s.orbital_source
+FROM satellites s CROSS JOIN generate_series(0,15) i WHERE s.code='SAT-01';
 
-INSERT INTO station_telemetry(module_id,recorded_at,temperature_c,pressure_kpa,oxygen_pct,co2_pct,power_kw)
+INSERT INTO station_telemetry(module_id, recorded_at, temperature_c, pressure_kpa, oxygen_pct, co2_pct, power_kw)
 SELECT module_id, now() - (i || ' hours')::interval, 23.8, 101.2, 20.9, .04, 12.4
 FROM station_modules CROSS JOIN generate_series(0,12) i WHERE code='HAB-01';
 
-INSERT INTO experiments(code,title,lead_crew_id,module_id,progress_pct,started_on)
-SELECT 'EXP-024','Plant Growth in Microgravity',c.crew_id,sm.module_id,72,'2026-09-12'
+INSERT INTO experiments(code, title, lead_crew_id, module_id, progress_pct, started_on)
+SELECT 'EXP-024', 'Plant Growth in Microgravity', c.crew_id, sm.module_id, 72, '2026-09-12'
 FROM crew_members c JOIN station_modules sm ON sm.code='SCI-01' WHERE c.full_name='Sarah Chen';
 
 INSERT INTO experiment_logs(experiment_id, logged_by, note, logged_at)
@@ -85,7 +99,7 @@ INSERT INTO experiment_results(experiment_id, metric_name, metric_value, unit, r
 SELECT e.experiment_id, 'Biomass Yield', 4.250, 'g/cm3', now() - interval '1 day'
 FROM experiments e WHERE e.code='EXP-024';
 
-INSERT INTO crew_tasks(crew_id,module_id,title,priority,status,due_at)
+INSERT INTO crew_tasks(crew_id, module_id, title, priority, status, due_at)
 SELECT c.crew_id, sm.module_id, 'Inspect thermal regulator', 'WARNING', 'IN_PROGRESS', now() + interval '4 hours'
 FROM crew_members c JOIN station_modules sm ON sm.code='HAB-01' WHERE c.full_name='Ravi Menon';
 
@@ -97,6 +111,6 @@ INSERT INTO incidents(station_id, title, severity, status)
 SELECT st.station_id, 'Micro-meteoroid sensor anomaly flagged', 'WARNING', 'OPEN'
 FROM space_stations st WHERE st.name='Astra Habitat One';
 
--- Low telemetry value intentionally fires trigger creating SAT-03 low-battery alert.
-INSERT INTO satellite_telemetry(satellite_id,altitude_km,velocity_kms,battery_pct,solar_output_kw,temperature_c,signal_pct)
-SELECT satellite_id,417.42,7.62,18,1.82,68.4,64 FROM satellites WHERE code='SAT-03';
+-- Trigger trigger test point
+INSERT INTO satellite_telemetry(satellite_id, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct)
+SELECT satellite_id, 417.42, 7.62, 18, 1.82, 68.4, 64 FROM satellites WHERE code='SAT-03';

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { db, query } from '../db.js';
+import { calculateCurrentOrbit, recordOrbitSnapshot } from '../services/orbitService.js';
 
 const router = Router();
 const allowedCommands = new Set(['SAFE_MODE', 'RESTART_PAYLOAD', 'ORIENTATION_CHANGE', 'REQUEST_TELEMETRY']);
@@ -21,21 +22,50 @@ router.get('/:id', async (req, res, next) => {
     if (!satellite.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
     const satId = satellite.rows[0].satellite_id;
 
-    const [history, components, orbit] = await Promise.all([
+    const [history, components, orbitHistory, liveOrbit] = await Promise.all([
       query(`SELECT recorded_at, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct
              FROM satellite_telemetry WHERE satellite_id = $1 ORDER BY recorded_at ASC LIMIT 50`, [satId]),
       query('SELECT name, status FROM satellite_components WHERE satellite_id = $1 ORDER BY name', [satId]),
-      query('SELECT recorded_at, latitude, longitude FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 20', [satId])
+      query('SELECT recorded_at, latitude, longitude, altitude_km, velocity_kms, source FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 30', [satId]),
+      calculateCurrentOrbit(satellite.rows[0])
     ]);
+
     res.json({
       success: true,
       data: {
         satellite: satellite.rows[0],
         telemetry: history.rows,
         components: components.rows,
-        orbit: orbit.rows
+        orbit: liveOrbit,
+        orbitHistory: orbitHistory.rows
       }
     });
+  } catch (error) { next(error); }
+});
+
+router.get('/:id/orbit', async (req, res, next) => {
+  try {
+    const param = req.params.id.toUpperCase();
+    const sat = await query('SELECT * FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
+    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
+
+    const orbit = await calculateCurrentOrbit(sat.rows[0]);
+    res.json({ success: true, data: orbit });
+  } catch (error) { next(error); }
+});
+
+router.get('/:id/orbit-history', async (req, res, next) => {
+  try {
+    const param = req.params.id.toUpperCase();
+    const sat = await query('SELECT satellite_id FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
+    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
+
+    const orbit = await query(
+      `SELECT recorded_at, latitude, longitude, altitude_km, velocity_kms, source
+       FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 50`,
+      [sat.rows[0].satellite_id]
+    );
+    res.json({ success: true, data: orbit.rows });
   } catch (error) { next(error); }
 });
 
@@ -52,20 +82,6 @@ router.get('/:id/telemetry', async (req, res, next) => {
       [sat.rows[0].satellite_id, limit]
     );
     res.json({ success: true, data: telemetry.rows });
-  } catch (error) { next(error); }
-});
-
-router.get('/:id/orbit-history', async (req, res, next) => {
-  try {
-    const param = req.params.id.toUpperCase();
-    const sat = await query('SELECT satellite_id FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
-    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
-
-    const orbit = await query(
-      `SELECT recorded_at, latitude, longitude FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 50`,
-      [sat.rows[0].satellite_id]
-    );
-    res.json({ success: true, data: orbit.rows });
   } catch (error) { next(error); }
 });
 
