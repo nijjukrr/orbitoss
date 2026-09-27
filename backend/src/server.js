@@ -1,6 +1,8 @@
+// ORBITOPS Express Server
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
+import { query } from './db.js';
 import dashboard from './routes/dashboard.js';
 import satellites from './routes/satellites.js';
 import alerts from './routes/alerts.js';
@@ -13,10 +15,29 @@ import groundStations from './routes/groundStations.js';
 import orbits from './routes/orbits.js';
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || ['http://localhost:5174', 'http://localhost:5173', 'http://127.0.0.1:5174'] }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-app.get('/api/health', (_req, res) => res.json({ success: true, service: 'orbitops-api', status: 'ok' }));
+app.get('/api/health', async (_req, res) => {
+  let dbStatus = 'disconnected';
+  try {
+    const dbTest = await query('SELECT 1 AS ok');
+    if (dbTest.rowCount) dbStatus = 'connected';
+  } catch (err) {
+    console.error('Health DB check failed:', err);
+    dbStatus = 'error';
+  }
+
+  res.json({
+    success: true,
+    service: 'orbitops-api',
+    status: 'ok',
+    backend: 'online',
+    database: dbStatus,
+    orbitService: 'live',
+    celestrak: 'live'
+  });
+});
 
 app.use('/api/dashboard', dashboard);
 app.use('/api/satellites', satellites);

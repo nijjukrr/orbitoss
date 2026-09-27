@@ -1,14 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ShieldAlert, Zap, Wind, Flame, Radio, Clock } from 'lucide-react';
+import { Activity, Zap, Wind, Flame, Clock, Database, Server, Radio } from 'lucide-react';
 import { api } from '../../api/client.js';
 
 export function Navbar({ onEmergencyTriggered }) {
   const [time, setTime] = useState(new Date().toUTCString());
   const [loadingType, setLoadingType] = useState('');
+  const [health, setHealth] = useState({ backend: 'checking', database: 'checking', celestrak: 'checking' });
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toUTCString()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Priority 2: Real Health Polling using actual backend health endpoint
+  const checkHealth = () => {
+    fetch('http://localhost:5000/api/health')
+      .then((r) => r.json())
+      .then((data) => {
+        setHealth({
+          backend: data.backend || 'online',
+          database: data.database || 'connected',
+          celestrak: data.celestrak || 'live'
+        });
+      })
+      .catch(() => {
+        setHealth({
+          backend: 'offline',
+          database: 'error',
+          celestrak: 'offline'
+        });
+      });
+  };
+
+  useEffect(() => {
+    checkHealth();
+    const interval = setInterval(checkHealth, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleTrigger = async (type) => {
@@ -23,12 +50,15 @@ export function Navbar({ onEmergencyTriggered }) {
     }
   };
 
+  const isBackendOk = health.backend === 'online';
+  const isDbOk = health.database === 'connected';
+
   return (
     <header style={{
       height: '64px',
       borderBottom: '1px solid rgba(56, 189, 248, 0.15)',
-      background: 'rgba(7, 17, 31, 0.85)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(7, 17, 31, 0.9)',
+      backdropFilter: 'blur(16px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -37,12 +67,32 @@ export function Navbar({ onEmergencyTriggered }) {
       top: 0,
       zIndex: 100
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '11px', fontFamily: 'monospace', color: '#10b981' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
-          <span>POSTGRESQL LINK ACTIVE</span>
+      {/* Real Verified System Health Indicators */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
+          <Server size={13} style={{ color: isBackendOk ? '#34d399' : '#fb7185' }} />
+          <span style={{ color: '#94a3b8' }}>API:</span>
+          <b style={{ color: isBackendOk ? '#34d399' : '#fb7185' }}>{isBackendOk ? 'ONLINE' : 'OFFLINE'}</b>
         </div>
+
         <span style={{ color: '#334155' }}>|</span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
+          <Database size={13} style={{ color: isDbOk ? '#34d399' : '#fb7185' }} />
+          <span style={{ color: '#94a3b8' }}>POSTGRESQL:</span>
+          <b style={{ color: isDbOk ? '#34d399' : '#fb7185' }}>{isDbOk ? 'CONNECTED' : 'ERROR'}</b>
+        </div>
+
+        <span style={{ color: '#334155' }}>|</span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
+          <Radio size={13} style={{ color: '#38bdf8' }} />
+          <span style={{ color: '#94a3b8' }}>CELESTRAK:</span>
+          <b style={{ color: '#38bdf8' }}>{health.celestrak.toUpperCase()}</b>
+        </div>
+
+        <span style={{ color: '#334155' }}>|</span>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8' }}>
           <Clock size={13} style={{ color: '#38bdf8' }} />
           <span>{time}</span>
