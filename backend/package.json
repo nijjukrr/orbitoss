@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "db:setup": "node scripts/setupDatabase.js"
+    "db:setup": "node scripts/setupDatabase.js",
+    "db:reset": "node scripts/setupDatabase.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

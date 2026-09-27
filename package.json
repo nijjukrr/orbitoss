@@ -1,0 +1,12 @@
+{
+  "name": "orbitops-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ORBITOPS Mission Control - Satellite & Space Station Operations Management System",
+  "scripts": {
+    "db:setup": "npm --prefix backend run db:setup",
+    "db:reset": "npm --prefix backend run db:reset",
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev"
+  }
+}

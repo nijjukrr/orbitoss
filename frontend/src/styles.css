@@ -42,3 +42,136 @@
 .leaflet-container {
   background: #07111f !important;
 }
+
+/* Demo Emergency Bar */
+.demo-emergency-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #101e30;
+  border: 1px solid #23456b;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-left: auto;
+}
+.demo-emergency-bar label {
+  font: 10px 'DM Mono';
+  color: #8daac6;
+  letter-spacing: 0.5px;
+}
+.btn-emergency {
+  border: 0;
+  padding: 6px 11px;
+  border-radius: 5px;
+  font: 700 11px Manrope;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.btn-emergency.battery {
+  background: #3d2310;
+  color: #ffaa5b;
+  border: 1px solid #7d491c;
+}
+.btn-emergency.battery:hover { background: #5c3214; }
+.btn-emergency.oxygen {
+  background: #3d141e;
+  color: #ff768b;
+  border: 1px solid #822234;
+}
+.btn-emergency.oxygen:hover { background: #591b29; }
+.btn-emergency.temp {
+  background: #39193b;
+  color: #f77fff;
+  border: 1px solid #7b2982;
+}
+.btn-emergency.temp:hover { background: #522057; }
+
+/* Stepper Bar */
+.stepper-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 25px 0 10px;
+  position: relative;
+}
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  background: #0c1a2d;
+  padding: 0 10px;
+}
+.stepper-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #285373;
+  background: #0c1a2d;
+  color: #799ab6;
+  display: grid;
+  place-items: center;
+  font: 700 12px 'DM Mono';
+}
+.stepper-step.active .stepper-circle {
+  border-color: #39d5ff;
+  background: #113c5f;
+  color: #65e3ff;
+  box-shadow: 0 0 12px #39d5ff66;
+}
+.stepper-step.completed .stepper-circle {
+  border-color: #4df2b8;
+  background: #0d3b2b;
+  color: #4df2b8;
+}
+.stepper-step.failed .stepper-circle {
+  border-color: #ff5b73;
+  background: #3d131b;
+  color: #ff798d;
+}
+.stepper-line {
+  position: absolute;
+  top: 16px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #1e3957;
+  z-index: 1;
+}
+
+/* Modal / Drawer backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #040912cc;
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-content {
+  background: #0e1e33;
+  border: 1px solid #234670;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 50px #00000088;
+}
+
+.disclaimer-tag {
+  font: 9px 'DM Mono';
+  color: #7390a8;
+  background: #0d1e31;
+  border: 1px solid #1c3959;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  display: inline-block;
+}
+

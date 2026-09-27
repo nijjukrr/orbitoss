@@ -13,7 +13,7 @@ import groundStations from './routes/groundStations.js';
 import orbits from './routes/orbits.js';
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+app.use(cors({ origin: process.env.FRONTEND_URL || ['http://localhost:5174', 'http://localhost:5173', 'http://127.0.0.1:5174'] }));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ success: true, service: 'orbitops-api', status: 'ok' }));

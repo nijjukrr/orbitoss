@@ -90,19 +90,38 @@ export default function OrbitMap({ satellite, liveOrbit, orbitHistory = [], grou
         .addTo(map);
     }
 
-    // Ground Track Polyline
+    // Ground Track Polyline with Longitude Wraparound Handling
     if (trackRef.current) {
       map.removeLayer(trackRef.current);
     }
 
     if (orbitHistory && orbitHistory.length > 0) {
-      const latLons = orbitHistory.map(p => [Number(p.latitude), Number(p.longitude)]).filter(p => !isNaN(p[0]) && !isNaN(p[1]));
+      const latLons = orbitHistory
+        .map(p => [Number(p.latitude), Number(p.longitude)])
+        .filter(p => !isNaN(p[0]) && !isNaN(p[1]) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180);
+      
       latLons.unshift([lat, lon]);
 
-      trackRef.current = L.polyline(latLons, {
+      // Split coordinates into segments when crossing the +-180 antimeridian
+      const segments = [];
+      let currentSegment = [latLons[0]];
+
+      for (let i = 1; i < latLons.length; i++) {
+        const prevLon = latLons[i - 1][1];
+        const currLon = latLons[i][1];
+        if (Math.abs(currLon - prevLon) > 180) {
+          if (currentSegment.length > 0) segments.push(currentSegment);
+          currentSegment = [latLons[i]];
+        } else {
+          currentSegment.push(latLons[i]);
+        }
+      }
+      if (currentSegment.length > 0) segments.push(currentSegment);
+
+      trackRef.current = L.polyline(segments, {
         color: source === 'REAL' ? '#39d5ff' : '#ffd37f',
         weight: 2,
-        opacity: 0.8,
+        opacity: 0.85,
         dashArray: '6, 6'
       }).addTo(map);
     }
