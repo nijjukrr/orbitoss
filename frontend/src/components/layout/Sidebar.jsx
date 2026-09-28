@@ -8,7 +8,6 @@ import {
   Radio,
   Terminal,
   AlertTriangle,
-  Globe2,
   UserCheck
 } from 'lucide-react';
 
@@ -37,27 +36,13 @@ export function Sidebar({ activeTab, onTabChange }) {
       transition: 'all 0.25s ease'
     }}>
       {/* Brand Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0 0.5rem 2rem' }}>
-        <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '8px',
-          background: 'var(--button-primary-bg)',
-          display: 'grid',
-          placeItems: 'center',
-          color: 'var(--button-primary-text)',
-          fontWeight: 900
-        }}>
-          <Globe2 size={22} />
-        </div>
-        <div>
-          <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, letterSpacing: '1px', color: 'var(--text-primary)' }}>
-            ORBIT<span style={{ color: 'var(--text-muted)' }}>OPS</span>
-          </h2>
-          <small style={{ color: 'var(--text-muted)', fontSize: '9px', fontFamily: 'monospace', letterSpacing: '2px', display: 'block' }}>
-            MISSION CONTROL DBMS
-          </small>
-        </div>
+      <div style={{ padding: '0 0.5rem 2rem' }}>
+        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, letterSpacing: '1px', color: 'var(--text-primary)' }}>
+          ORBIT<span style={{ color: 'var(--text-muted)' }}>OPS</span>
+        </h2>
+        <small style={{ color: 'var(--text-muted)', fontSize: '9px', fontFamily: 'monospace', letterSpacing: '2px', display: 'block', marginTop: '2px' }}>
+          MISSION CONTROL DBMS
+        </small>
       </div>
 
       {/* Navigation Links */}
