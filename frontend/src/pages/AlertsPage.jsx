@@ -4,8 +4,9 @@ import { api } from '../api/client.js';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton.jsx';
 import { ErrorState } from '../components/shared/ErrorState.jsx';
+import { DemoTools } from '../components/shared/DemoTools.jsx';
 
-export function AlertsPage() {
+export function AlertsPage({ onEmergencyTriggered }) {
   const [alerts, setAlerts] = useState([]);
   const [filter, setFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
@@ -59,7 +60,7 @@ export function AlertsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '1px' }}>
-            <span>CENTRAL INCIDENT MANAGEMENT</span> · <span>POSTGRESQL TRIGGER PIPELINE</span>
+            <span>CENTRAL INCIDENT MANAGEMENT</span> · <span>AUTOMATED TRIGGER PIPELINE</span>
           </div>
           <h1 style={{ margin: '4px 0 0', fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             Mission Control Alert & Event Flow Board
@@ -115,6 +116,9 @@ export function AlertsPage() {
           </div>
         </div>
       </div>
+
+      {/* Demo Simulation Tools Section */}
+      <DemoTools onEmergencyTriggered={onEmergencyTriggered} />
 
       {/* Alerts List Table with DBMS Event Flow Timeline */}
       <div style={{

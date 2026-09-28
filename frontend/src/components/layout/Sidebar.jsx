@@ -9,7 +9,8 @@ import {
   Terminal,
   AlertTriangle,
   Globe2,
-  UserCheck
+  UserCheck,
+  Info
 } from 'lucide-react';
 
 const menuItems = [
@@ -23,7 +24,7 @@ const menuItems = [
   { id: 'Alerts', label: 'Alert Center', icon: AlertTriangle },
 ];
 
-export function Sidebar({ activeTab, onTabChange }) {
+export function Sidebar({ activeTab, onTabChange, onOpenAbout }) {
   return (
     <aside style={{
       width: '260px',
@@ -105,31 +106,63 @@ export function Sidebar({ activeTab, onTabChange }) {
         })}
       </nav>
 
-      {/* Operator Profile */}
+      {/* Operator Profile & Info */}
       <div style={{
         marginTop: 'auto',
         borderTop: '1px solid var(--border)',
         paddingTop: '1.25rem',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.75rem'
+        justifyContent: 'space-between',
+        gap: '0.5rem'
       }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '50%',
-          background: 'var(--surface-muted)',
-          border: '1px solid var(--border-strong)',
-          display: 'grid',
-          placeItems: 'center',
-          color: 'var(--text-primary)'
-        }}>
-          <UserCheck size={18} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            background: 'var(--surface-muted)',
+            border: '1px solid var(--border-strong)',
+            display: 'grid',
+            placeItems: 'center',
+            color: 'var(--text-primary)'
+          }}>
+            <UserCheck size={18} />
+          </div>
+          <div>
+            <b style={{ display: 'block', fontSize: '12px', color: 'var(--text-primary)' }}>Maya Raman</b>
+            <small style={{ color: 'var(--text-muted)', fontSize: '10px', fontFamily: 'monospace' }}>Mission Controller</small>
+          </div>
         </div>
-        <div>
-          <b style={{ display: 'block', fontSize: '12px', color: 'var(--text-primary)' }}>Maya Raman</b>
-          <small style={{ color: 'var(--text-muted)', fontSize: '10px', fontFamily: 'monospace' }}>Mission Controller</small>
-        </div>
+
+        {onOpenAbout && (
+          <button
+            onClick={onOpenAbout}
+            aria-label="About ORBITOPS"
+            title="About ORBITOPS DBMS"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '6px',
+              borderRadius: '6px',
+              display: 'grid',
+              placeItems: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--surface-hover)';
+              e.currentTarget.style.color = 'var(--text-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }}
+          >
+            <Info size={18} />
+          </button>
+        )}
       </div>
     </aside>
   );

@@ -20,9 +20,10 @@ import { MetricCard } from '../components/shared/MetricCard.jsx';
 import { StatusBadge } from '../components/shared/StatusBadge.jsx';
 import { LoadingSkeleton } from '../components/shared/LoadingSkeleton.jsx';
 import { ErrorState } from '../components/shared/ErrorState.jsx';
+import { DemoTools } from '../components/shared/DemoTools.jsx';
 import OrbitMap from '../components/views/OrbitMap.jsx';
 
-export function DashboardPage({ onSelectSatellite, onSelectTab }) {
+export function DashboardPage({ onSelectSatellite, onSelectTab, onEmergencyTriggered }) {
   const [data, setData] = useState(null);
   const [sat01Orbit, setSat01Orbit] = useState(null);
   const [orbitSourceState, setOrbitSourceState] = useState('CHECKING');
@@ -99,7 +100,10 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
       {/* SECTION 1: MONOCHROME ISS HERO */}
       <HeroSection onEnterConsole={() => onSelectTab && onSelectTab('Station')} liveAltitude={currentSat01Alt} />
 
-      {/* SECTION 2: LIVE MISSION KPI METRICS */}
+      {/* SECTION 2: DEMO TOOLS COLLAPSED CONTROLS */}
+      <DemoTools onEmergencyTriggered={onEmergencyTriggered} />
+
+      {/* SECTION 3: LIVE MISSION KPI METRICS */}
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
           <p style={{ margin: 0, fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', letterSpacing: '2px' }}>

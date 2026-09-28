@@ -3,6 +3,7 @@ import { ErrorBoundary } from './components/shared/ErrorBoundary.jsx';
 import { Sidebar } from './components/layout/Sidebar.jsx';
 import { Navbar } from './components/layout/Navbar.jsx';
 import { IntroExperience } from './components/intro/IntroExperience.jsx';
+import { AboutModal } from './components/shared/AboutModal.jsx';
 
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { SatellitesPage } from './pages/SatellitesPage.jsx';
@@ -15,6 +16,7 @@ import { AlertsPage } from './pages/AlertsPage.jsx';
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('orbitops-theme') || 'dark';
   });
@@ -44,7 +46,13 @@ export default function App() {
 
   let pageContent = null;
   if (activeTab === 'Dashboard') {
-    pageContent = <DashboardPage onSelectSatellite={handleSelectSatellite} onSelectTab={setActiveTab} />;
+    pageContent = (
+      <DashboardPage
+        onSelectSatellite={handleSelectSatellite}
+        onSelectTab={setActiveTab}
+        onEmergencyTriggered={handleEmergencyTriggered}
+      />
+    );
   } else if (activeTab === 'Satellites' || activeTab.startsWith('Satellite:')) {
     const code = activeTab.startsWith('Satellite:') ? activeTab.split(':')[1] : selectedSatelliteCode;
     pageContent = <SatellitesPage code={code} onSelectSatellite={handleSelectSatellite} />;
@@ -59,9 +67,15 @@ export default function App() {
   } else if (activeTab === 'Command Center') {
     pageContent = <CommandCenterPage />;
   } else if (activeTab === 'Alerts') {
-    pageContent = <AlertsPage />;
+    pageContent = <AlertsPage onEmergencyTriggered={handleEmergencyTriggered} />;
   } else {
-    pageContent = <DashboardPage onSelectSatellite={handleSelectSatellite} onSelectTab={setActiveTab} />;
+    pageContent = (
+      <DashboardPage
+        onSelectSatellite={handleSelectSatellite}
+        onSelectTab={setActiveTab}
+        onEmergencyTriggered={handleEmergencyTriggered}
+      />
+    );
   }
 
   return (
@@ -70,6 +84,9 @@ export default function App() {
       {showIntro && (
         <IntroExperience onEnter={() => setShowIntro(false)} />
       )}
+
+      {/* About Project Dialog */}
+      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
       {/* Main Mission Control Application */}
       <div
@@ -85,15 +102,20 @@ export default function App() {
         }}
       >
         {/* Navigation Sidebar */}
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onOpenAbout={() => setIsAboutOpen(true)}
+        />
 
         {/* Content Region */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Top Header Navbar */}
           <Navbar
-            onEmergencyTriggered={handleEmergencyTriggered}
+            activeTab={activeTab}
             theme={theme}
             onToggleTheme={handleToggleTheme}
+            onOpenAbout={() => setIsAboutOpen(true)}
           />
 
           {/* Emergency Trigger Toast Notification */}
@@ -130,3 +152,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+

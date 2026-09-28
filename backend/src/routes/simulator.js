@@ -36,7 +36,7 @@ router.post('/emergency', async (req, res, next) => {
       );
       return res.json({ success: true, message: 'Inserted low battery telemetry (12.5%). DB trigger fired.', data: row.rows[0] });
     } else if (type === 'LOW_OXYGEN') {
-      const mod = await query("SELECT module_id, code FROM station_modules WHERE code = 'MOD-HAB' LIMIT 1");
+      const mod = await query("SELECT module_id, code FROM station_modules WHERE code = 'HAB-01' OR code = 'MOD-HAB' LIMIT 1");
       if (!mod.rowCount) return res.status(404).json({ success: false, error: 'Module not found' });
       const row = await query(
         `INSERT INTO station_telemetry(module_id, temperature_c, pressure_kpa, oxygen_pct, co2_pct, power_kw)

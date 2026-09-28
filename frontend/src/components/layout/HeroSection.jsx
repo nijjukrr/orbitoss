@@ -118,7 +118,7 @@ export function HeroSection({ onEnterConsole, liveAltitude }) {
         position: 'relative',
         zIndex: 1,
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
         gap: '1.5rem',
         background: '#000000',
         border: '1px solid #3a3a3a',
@@ -131,14 +131,6 @@ export function HeroSection({ onEnterConsole, liveAltitude }) {
           <div>
             <small style={{ display: 'block', fontSize: '10px', color: '#999999', fontFamily: 'monospace' }}>REAL ISS ORBIT</small>
             <b style={{ fontSize: '14px', color: '#ffffff' }}>SGP4 Kinematics (NORAD 25544)</b>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <ShieldCheck size={24} style={{ color: '#ffffff' }} />
-          <div>
-            <small style={{ display: 'block', fontSize: '10px', color: '#999999', fontFamily: 'monospace' }}>DATABASE ENGINE</small>
-            <b style={{ fontSize: '14px', color: '#ffffff' }}>PostgreSQL Neon Cloud DB</b>
           </div>
         </div>
 
