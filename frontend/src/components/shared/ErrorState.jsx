@@ -1,24 +1,31 @@
 import React from 'react';
 import { WifiOff, RefreshCw } from 'lucide-react';
 
-export function ErrorState({ title = 'Telemetry Link Unavailable', message, onRetry }) {
+export function ErrorState({ title = 'MISSION DATA UNAVAILABLE', message, onRetry }) {
   return (
     <div style={{
       padding: '2.5rem 1.5rem',
-      borderRadius: '16px',
-      background: 'rgba(30, 41, 59, 0.5)',
-      border: '1px solid rgba(244, 63, 94, 0.25)',
+      borderRadius: '12px',
+      background: 'var(--surface-muted, #161616)',
+      border: '1px solid var(--border-strong, #555555)',
       textAlign: 'center',
-      color: '#cbd5e1',
+      color: 'var(--text-muted, #777777)',
       maxWidth: '500px',
       margin: '2rem auto'
     }}>
-      <WifiOff size={40} style={{ color: '#f43f5e', marginBottom: '1rem' }} />
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.5rem', color: '#f8fafc' }}>
+      <WifiOff size={40} style={{ color: 'var(--text-primary, #ffffff)', marginBottom: '1rem' }} />
+      <h3 style={{
+        fontSize: '1.15rem',
+        fontWeight: 800,
+        margin: '0 0 0.5rem',
+        color: 'var(--text-primary, #ffffff)',
+        letterSpacing: '1px',
+        fontFamily: 'DM Mono, monospace'
+      }}>
         {title}
       </h3>
-      <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: '0 0 1.5rem', fontFamily: 'monospace' }}>
-        {message || 'Could not connect to Express API on http://localhost:5000.'}
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary, #bdbdbd)', margin: '0 0 1.5rem', fontFamily: 'monospace' }}>
+        {message || 'Backend service could not be reached.'}
       </p>
       {onRetry && (
         <button
@@ -28,18 +35,21 @@ export function ErrorState({ title = 'Telemetry Link Unavailable', message, onRe
             alignItems: 'center',
             gap: '0.5rem',
             padding: '0.6rem 1.25rem',
-            background: 'rgba(56, 189, 248, 0.15)',
-            border: '1px solid rgba(56, 189, 248, 0.4)',
-            borderRadius: '8px',
-            color: '#38bdf8',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            cursor: 'pointer'
+            background: 'var(--button-primary-bg, #ffffff)',
+            border: '1px solid var(--button-primary-bg, #ffffff)',
+            borderRadius: '6px',
+            color: 'var(--button-primary-text, #000000)',
+            fontSize: '0.85rem',
+            fontWeight: 800,
+            fontFamily: 'DM Mono, monospace',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
         >
-          <RefreshCw size={14} /> Retry Connection
+          <RefreshCw size={14} /> RETRY CONNECTION
         </button>
       )}
     </div>
   );
 }
+

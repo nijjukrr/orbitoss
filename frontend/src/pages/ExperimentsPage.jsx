@@ -46,7 +46,7 @@ export function ExperimentsPage() {
   };
 
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchExperiments} />;
+  if (error) return <ErrorState title="RESEARCH DATA UNAVAILABLE" message={error} onRetry={fetchExperiments} />;
 
   const activeCount = experiments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ACTIVE' || e.status === 'NOMINAL').length || 1;
   const avgProgress = (experiments.reduce((acc, x) => acc + Number(x.progress_pct || 0), 0) / (experiments.length || 1)).toFixed(0);

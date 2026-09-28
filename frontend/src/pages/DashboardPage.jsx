@@ -84,7 +84,7 @@ export function DashboardPage({ onSelectSatellite, onSelectTab }) {
   }, [sat01Orbit]);
 
   if (loading) return <LoadingSkeleton height="180px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchDashboard} />;
+  if (error) return <ErrorState title="MISSION DATA UNAVAILABLE" message={error} onRetry={fetchDashboard} />;
 
   const summary = data?.summary || { active_crew: 4, active_satellites: 4, unresolved_alerts: 1, resource_health_pct: 86 };
   const station = data?.station || { name: 'Astra Habitat One', status: 'NOMINAL' };

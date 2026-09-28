@@ -32,7 +32,7 @@ export function StationPage() {
   }, []);
 
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchStationData} />;
+  if (error) return <ErrorState title="STATION DATA UNAVAILABLE" message={error} onRetry={fetchStationData} />;
 
   const station = data?.station || { name: 'Astra Habitat One', altitude_km: 408, velocity_kms: 7.66, status: 'NOMINAL' };
   const modules = Array.isArray(data?.modules) ? data.modules : [];

@@ -13,7 +13,8 @@ export function Navbar({ onEmergencyTriggered, theme = 'dark', onToggleTheme }) 
   }, []);
 
   const checkHealth = () => {
-    fetch('http://localhost:5000/api/health')
+    const healthUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/health';
+    fetch(healthUrl)
       .then((r) => r.json())
       .then((data) => {
         setHealth({
@@ -33,7 +34,7 @@ export function Navbar({ onEmergencyTriggered, theme = 'dark', onToggleTheme }) 
 
   useEffect(() => {
     checkHealth();
-    const interval = setInterval(checkHealth, 10000);
+    const interval = setInterval(checkHealth, 20000);
     return () => clearInterval(interval);
   }, []);
 
@@ -51,6 +52,7 @@ export function Navbar({ onEmergencyTriggered, theme = 'dark', onToggleTheme }) 
 
   const isBackendOk = health.backend === 'online';
   const isDbOk = health.database === 'connected';
+  const isCelestrakOk = health.celestrak === 'live';
 
   return (
     <header style={{
@@ -70,24 +72,21 @@ export function Navbar({ onEmergencyTriggered, theme = 'dark', onToggleTheme }) 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
           <Server size={13} style={{ color: 'var(--text-primary)' }} />
-          <span style={{ color: 'var(--text-muted)' }}>API:</span>
-          <b style={{ color: 'var(--text-primary)' }}>{isBackendOk ? '● ONLINE' : '○ OFFLINE'}</b>
+          <b style={{ color: 'var(--text-primary)' }}>{isBackendOk ? '● API ONLINE' : '○ API OFFLINE'}</b>
         </div>
 
         <span style={{ color: 'var(--border)' }}>|</span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
           <Database size={13} style={{ color: 'var(--text-primary)' }} />
-          <span style={{ color: 'var(--text-muted)' }}>POSTGRESQL:</span>
-          <b style={{ color: 'var(--text-primary)' }}>{isDbOk ? '● CONNECTED' : '○ ERROR'}</b>
+          <b style={{ color: 'var(--text-primary)' }}>{isDbOk ? '■ POSTGRESQL CONNECTED' : '□ POSTGRESQL ERROR'}</b>
         </div>
 
         <span style={{ color: 'var(--border)' }}>|</span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', fontFamily: 'monospace' }}>
           <Radio size={13} style={{ color: 'var(--text-primary)' }} />
-          <span style={{ color: 'var(--text-muted)' }}>CELESTRAK:</span>
-          <b style={{ color: 'var(--text-primary)' }}>◉ {health.celestrak.toUpperCase()}</b>
+          <b style={{ color: 'var(--text-primary)' }}>{isCelestrakOk ? '◉ CELESTRAK LIVE' : '○ CELESTRAK OFFLINE'}</b>
         </div>
 
         <span style={{ color: 'var(--border)' }}>|</span>

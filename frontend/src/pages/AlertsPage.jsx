@@ -47,7 +47,7 @@ export function AlertsPage() {
   };
 
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchAlerts} />;
+  if (error) return <ErrorState title="ALERT SERVICE UNAVAILABLE" message={error} onRetry={fetchAlerts} />;
 
   const criticalCount = alerts.filter(a => a.severity === 'CRITICAL' && a.status !== 'RESOLVED').length;
   const warningCount = alerts.filter(a => a.severity === 'WARNING' && a.status !== 'RESOLVED').length;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, ShieldAlert, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export function IntroExperience({ onEnter }) {
   const [showButton, setShowButton] = useState(false);
@@ -8,22 +8,28 @@ export function IntroExperience({ onEnter }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // Reveal Enter button after ~5 seconds
+    // Safe fallback timer if video onTimeUpdate is delayed or video fails to load
     const timer = setTimeout(() => {
       setShowButton(true);
-    }, 4500);
+    }, 5500);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current && videoRef.current.currentTime >= 5 && !showButton) {
+      setShowButton(true);
+    }
+  };
 
   const handleEnterClick = () => {
     if (isEntering) return;
     setIsEntering(true);
 
-    // Zoom transition duration ~1s
+    // Zoom transition duration ~900ms
     setTimeout(() => {
       if (onEnter) onEnter();
-    }, 950);
+    }, 900);
   };
 
   const handleKeyDown = (e) => {
@@ -52,7 +58,7 @@ export function IntroExperience({ onEnter }) {
         fontFamily: 'Manrope, system-ui, sans-serif'
       }}
     >
-      {/* Cinematic Background Video or Image Fallback */}
+      {/* Cinematic Background Video in ORIGINAL COLOR or Image Fallback */}
       {!videoError ? (
         <video
           ref={videoRef}
@@ -62,6 +68,11 @@ export function IntroExperience({ onEnter }) {
           loop
           playsInline
           preload="auto"
+          controls={false}
+          disablePictureInPicture
+          disableRemotePlayback
+          controlsList="nodownload noplaybackrate noremoteplayback"
+          onTimeUpdate={handleTimeUpdate}
           onError={() => setVideoError(true)}
           style={{
             position: 'absolute',
@@ -69,9 +80,9 @@ export function IntroExperience({ onEnter }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            filter: 'grayscale(100%) contrast(110%) brightness(75%)',
+            filter: 'brightness(80%) contrast(105%)',
             transform: isEntering ? 'scale(1.25)' : 'scale(1)',
-            transition: 'transform 1s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
             willChange: 'transform'
           }}
         />
@@ -83,9 +94,9 @@ export function IntroExperience({ onEnter }) {
             backgroundImage: 'url(/media/nasa/iss_interior.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'grayscale(100%) contrast(110%) brightness(50%)',
+            filter: 'brightness(60%) contrast(105%)',
             transform: isEntering ? 'scale(1.15)' : 'scale(1)',
-            transition: 'transform 1s cubic-bezier(0.16, 1, 0.3, 1)'
+            transition: 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         />
       )}
@@ -97,7 +108,7 @@ export function IntroExperience({ onEnter }) {
           inset: 0,
           background: isEntering
             ? '#000000'
-            : 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%)',
+            : 'radial-gradient(circle at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.85) 100%)',
           opacity: isEntering ? 1 : 0.8,
           transition: 'all 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: 'none'
@@ -180,7 +191,7 @@ export function IntroExperience({ onEnter }) {
           Integrated Space Station & Satellite Operations DBMS
         </p>
 
-        {/* Enter Button (Appears after 5 seconds) */}
+        {/* Enter Button (Appears after 5 seconds of video playback) */}
         <div style={{ height: '60px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {showButton && (
             <button
@@ -228,13 +239,13 @@ export function IntroExperience({ onEnter }) {
           bottom: '24px',
           fontFamily: 'DM Mono, monospace',
           fontSize: '10px',
-          color: '#555555',
+          color: '#777777',
           letterSpacing: '1px',
           opacity: isEntering ? 0 : 0.8,
           transition: 'opacity 0.4s ease'
         }}
       >
-        ORBITOPS DBMS v2.4 // NASA ISS & CELESTRAK REAL-TIME TELEMETRY
+        ORBITOPS DBMS v2.4 // REAL ISS ORBIT · CELESTRAK TLE · SIMULATED MISSION TELEMETRY
       </div>
 
       <style>{`
@@ -252,3 +263,4 @@ export function IntroExperience({ onEnter }) {
     </div>
   );
 }
+

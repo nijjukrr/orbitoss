@@ -70,7 +70,7 @@ export function SatellitesPage({ code = 'SAT-01', onSelectSatellite }) {
   };
 
   if (loading) return <LoadingSkeleton height="180px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchSatelliteDetails} />;
+  if (error) return <ErrorState title="ORBIT DATA LINK UNAVAILABLE" message={error} onRetry={fetchSatelliteDetails} />;
 
   const s = data?.satellite || {};
   const telemetry = Array.isArray(data?.telemetry) ? data.telemetry : [];

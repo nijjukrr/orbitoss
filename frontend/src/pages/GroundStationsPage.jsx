@@ -189,7 +189,7 @@ export function GroundStationsPage() {
   }, []);
 
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchGroundStationData} />;
+  if (error) return <ErrorState title="GROUND NETWORK DATA UNAVAILABLE" message={error} onRetry={fetchGroundStationData} />;
 
   return (
     <div style={{ display: 'grid', gap: '2.5rem' }}>

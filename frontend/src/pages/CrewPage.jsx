@@ -55,7 +55,7 @@ export function CrewPage() {
   };
 
   if (loading) return <LoadingSkeleton height="160px" count={4} />;
-  if (error) return <ErrorState message={error} onRetry={fetchCrewData} />;
+  if (error) return <ErrorState title="CREW RECORDS UNAVAILABLE" message={error} onRetry={fetchCrewData} />;
 
   const getShiftInfo = (role, index) => {
     const shifts = [
