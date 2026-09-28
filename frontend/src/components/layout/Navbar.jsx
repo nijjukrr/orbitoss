@@ -1,7 +1,7 @@
 import React from 'react';
-import { Sun, Moon, Info } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 
-export function Navbar({ activeTab = 'Dashboard', theme = 'dark', onToggleTheme, onOpenAbout }) {
+export function Navbar({ activeTab = 'Dashboard', theme = 'dark', onToggleTheme }) {
   const getDisplayTitle = () => {
     if (activeTab.startsWith('Satellite:')) {
       return `SATELLITE ${activeTab.split(':')[1]}`;
@@ -34,39 +34,8 @@ export function Navbar({ activeTab = 'Dashboard', theme = 'dark', onToggleTheme,
         </h2>
       </div>
 
-      {/* Right Controls: About Modal & Theme Switcher */}
+      {/* Right Controls: Theme Switcher */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        {/* About Project Button */}
-        <button
-          onClick={onOpenAbout}
-          aria-label="Open About Project Modal"
-          title="About ORBITOPS DBMS Project"
-          style={{
-            background: 'var(--surface-muted)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
-            padding: '7px 12px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '11px',
-            fontWeight: 700,
-            fontFamily: 'DM Mono, monospace',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-strong)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border)';
-          }}
-        >
-          <Info size={14} />
-          <span>ABOUT PROJECT</span>
-        </button>
-
         {/* Light/Dark Theme Switcher */}
         <button
           onClick={onToggleTheme}
@@ -101,3 +70,4 @@ export function Navbar({ activeTab = 'Dashboard', theme = 'dark', onToggleTheme,
     </header>
   );
 }
+

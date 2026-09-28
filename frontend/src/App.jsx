@@ -3,7 +3,6 @@ import { ErrorBoundary } from './components/shared/ErrorBoundary.jsx';
 import { Sidebar } from './components/layout/Sidebar.jsx';
 import { Navbar } from './components/layout/Navbar.jsx';
 import { IntroExperience } from './components/intro/IntroExperience.jsx';
-import { AboutModal } from './components/shared/AboutModal.jsx';
 
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { SatellitesPage } from './pages/SatellitesPage.jsx';
@@ -16,7 +15,6 @@ import { AlertsPage } from './pages/AlertsPage.jsx';
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('orbitops-theme') || 'dark';
   });
@@ -85,9 +83,6 @@ export default function App() {
         <IntroExperience onEnter={() => setShowIntro(false)} />
       )}
 
-      {/* About Project Dialog */}
-      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-
       {/* Main Mission Control Application */}
       <div
         style={{
@@ -105,7 +100,6 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onOpenAbout={() => setIsAboutOpen(true)}
         />
 
         {/* Content Region */}
@@ -115,7 +109,6 @@ export default function App() {
             activeTab={activeTab}
             theme={theme}
             onToggleTheme={handleToggleTheme}
-            onOpenAbout={() => setIsAboutOpen(true)}
           />
 
           {/* Emergency Trigger Toast Notification */}
@@ -152,4 +145,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
 
