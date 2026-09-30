@@ -64,6 +64,30 @@ CREATE TABLE crew_members (
   joined_on DATE NOT NULL
 );
 
+CREATE TABLE astronauts (
+  id SERIAL PRIMARY KEY,
+  external_id INTEGER UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  status TEXT,
+  agency_id INTEGER,
+  agency_name TEXT,
+  agency_abbrev TEXT,
+  image_url TEXT,
+  thumbnail_url TEXT,
+  in_space BOOLEAN DEFAULT false,
+  time_in_space TEXT,
+  age INTEGER,
+  nationality TEXT,
+  bio TEXT,
+  first_flight TIMESTAMPTZ,
+  last_flight TIMESTAMPTZ,
+  flights_count INTEGER,
+  landings_count INTEGER,
+  spacewalks_count INTEGER,
+  source_url TEXT,
+  last_synced_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE mission_crew (
   mission_id UUID REFERENCES missions(mission_id) ON DELETE CASCADE,
   crew_id UUID REFERENCES crew_members(crew_id) ON DELETE CASCADE,
@@ -171,16 +195,22 @@ CREATE TABLE experiment_results (
 -- SATELLITES & REAL ORBITAL TRACKING
 CREATE TABLE satellites (
   satellite_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  mission_id UUID NOT NULL REFERENCES missions(mission_id),
-  code TEXT UNIQUE NOT NULL,
+  mission_id UUID REFERENCES missions(mission_id),
+  code TEXT,
   name TEXT NOT NULL,
-  purpose TEXT NOT NULL,
+  category TEXT,
+  purpose TEXT,
   status operational_status NOT NULL DEFAULT 'NOMINAL',
-  launched_on DATE NOT NULL,
-  norad_id INT,
+  launched_on DATE,
+  norad_id INT UNIQUE,
   tle_line1 TEXT,
   tle_line2 TEXT,
+  tle_epoch TIMESTAMPTZ,
+  tle_source TEXT DEFAULT 'CELESTRAK',
+  last_tle_sync TIMESTAMPTZ,
   tle_updated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   orbital_source TEXT NOT NULL DEFAULT 'SIMULATED' CHECK (orbital_source IN ('REAL', 'SIMULATED'))
 );
 

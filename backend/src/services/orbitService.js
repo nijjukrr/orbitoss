@@ -1,10 +1,9 @@
 import * as satellite from 'satellite.js';
-import { FALLBACK_TLE_DATA } from './fallbackTle.js';
 import { query } from '../db.js';
 
 /**
  * Parses TLE Line 1 to extract the exact TLE Epoch Date.
- * TLE Line 1 format:
+ * Format:
  * 1 25544U 98067A   26095.53423984  .00014815  00000+0  26656-3 0  9993
  * Cols 19-20: Epoch Year (YY)
  * Cols 21-32: Epoch Day of Year + fraction (DDD.DDDDDDDD)
@@ -21,7 +20,6 @@ export function parseTleEpoch(tleLine1) {
 
     const fullYear = yearDigits < 50 ? 2000 + yearDigits : 1900 + yearDigits;
     const epochDate = new Date(Date.UTC(fullYear, 0, 1));
-    // Add (dayFraction - 1) days to Jan 1st
     epochDate.setTime(epochDate.getTime() + (dayFraction - 1) * 86400 * 1000);
 
     return epochDate;
@@ -32,7 +30,10 @@ export function parseTleEpoch(tleLine1) {
 }
 
 /**
- * Computes TLE age statistics (age in hours & days, freshness category, and reliability flag).
+ * Evaluates TLE freshness based on prompt criteria:
+ * <= 3 days: FRESH
+ * > 3 days and <= 14 days: STALE
+ * > 14 days: UNRELIABLE
  */
 export function evaluateTleFreshness(tleLine1, now = new Date()) {
   const epochDate = parseTleEpoch(tleLine1);
@@ -41,7 +42,7 @@ export function evaluateTleFreshness(tleLine1, now = new Date()) {
       tle_epoch: null,
       tle_age_hours: null,
       tle_age_days: null,
-      freshness: 'UNKNOWN',
+      freshness: 'UNRELIABLE',
       reliable: false
     };
   }
@@ -54,11 +55,11 @@ export function evaluateTleFreshness(tleLine1, now = new Date()) {
   let reliable = true;
 
   if (ageDays > 14) {
-    freshness = 'TOO_OLD';
+    freshness = 'UNRELIABLE';
     reliable = false;
   } else if (ageDays > 3) {
     freshness = 'STALE';
-    reliable = true; // Usable for demo, but marked stale
+    reliable = true;
   }
 
   return {
@@ -71,7 +72,8 @@ export function evaluateTleFreshness(tleLine1, now = new Date()) {
 }
 
 /**
- * Validates whether orbital calculation results fall within plausible LEO physical bounds.
+ * Validates whether orbital calculation results fall within plausible physical bounds.
+ * Accommodates LEO, MEO, and GEO orbits.
  */
 export function validateOrbitalSanity(latitude, longitude, altitude_km, velocity_kms) {
   if (latitude == null || longitude == null || altitude_km == null || velocity_kms == null) return false;
@@ -79,46 +81,10 @@ export function validateOrbitalSanity(latitude, longitude, altitude_km, velocity
 
   const validLat = latitude >= -90 && latitude <= 90;
   const validLon = longitude >= -180 && longitude <= 180;
-  const validAlt = altitude_km >= 300 && altitude_km <= 1000; // Physical LEO range
-  const validVel = velocity_kms >= 6.5 && velocity_kms <= 8.5; // LEO velocity range (~7.6 km/s)
+  const validAlt = altitude_km >= 100 && altitude_km <= 50000;
+  const validVel = velocity_kms >= 0.5 && velocity_kms <= 12.0;
 
   return validLat && validLon && validAlt && validVel;
-}
-
-/**
- * Fetches Two-Line Element (TLE) set for a given NORAD Catalog Number.
- * Tries CelesTrak public API first, falls back to local cached TLE data if offline.
- */
-export async function fetchTleForNoradId(noradId) {
-  try {
-    const url = `https://celestrak.org/NORAD/elements/gp.php?CATNR=${noradId}&FORMAT=tle`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (response.ok) {
-      const text = await response.text();
-      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-      if (lines.length >= 2) {
-        const line1 = lines.find(l => l.startsWith('1 '));
-        const line2 = lines.find(l => l.startsWith('2 '));
-        if (line1 && line2) {
-          return { line1, line2, source: 'CELESTRAK_LIVE' };
-        }
-      }
-    }
-  } catch (err) {
-    console.warn(`[orbitService] CelesTrak fetch failed for NORAD ${noradId}, using fallback:`, err.message);
-  }
-
-  // Fallback to local offline TLE
-  const fallback = FALLBACK_TLE_DATA[noradId];
-  if (fallback) {
-    return { line1: fallback.line1, line2: fallback.line2, source: 'LOCAL_FALLBACK' };
-  }
-
-  return null;
 }
 
 /**
@@ -127,8 +93,7 @@ export async function fetchTleForNoradId(noradId) {
 export function calculatePositionFromTle(tleLine1, tleLine2, date = new Date()) {
   try {
     const satrec = satellite.twoline2satrec(tleLine1, tleLine2);
-    if (!satrec || satrec.error || isNaN(satrec.inclo)) {
-      console.warn('[orbitService] Invalid or malformed TLE lines');
+    if (!satrec || satrec.error) {
       return null;
     }
 
@@ -136,8 +101,7 @@ export function calculatePositionFromTle(tleLine1, tleLine2, date = new Date()) 
     if (
       !positionAndVelocity ||
       !positionAndVelocity.position ||
-      typeof positionAndVelocity.position === 'boolean' ||
-      isNaN(positionAndVelocity.position.x)
+      typeof positionAndVelocity.position === 'boolean'
     ) {
       return null;
     }
@@ -152,16 +116,21 @@ export function calculatePositionFromTle(tleLine1, tleLine2, date = new Date()) 
     const longitude = satellite.degreesLong(positionGd.longitude);
     const altitude_km = positionGd.height;
 
-    let velocity_kms = 7.66;
-    if (velocityEci) {
+    let velocity_kms = 0;
+    if (velocityEci && !isNaN(velocityEci.x)) {
       velocity_kms = Math.sqrt(velocityEci.x ** 2 + velocityEci.y ** 2 + velocityEci.z ** 2);
     }
 
+    if (isNaN(latitude) || isNaN(longitude) || isNaN(altitude_km) || isNaN(velocity_kms)) {
+      return null;
+    }
+
     return {
-      latitude: Number(latitude.toFixed(3)),
-      longitude: Number(longitude.toFixed(3)),
-      altitude_km: Number(altitude_km.toFixed(2)),
-      velocity_kms: Number(velocity_kms.toFixed(2))
+      latitude: Number(latitude.toFixed(4)),
+      longitude: Number(longitude.toFixed(4)),
+      altitude_km: Number(altitude_km.toFixed(1)),
+      velocity_kms: Number(velocity_kms.toFixed(2)),
+      velocity_km_s: Number(velocity_kms.toFixed(2))
     };
   } catch (err) {
     console.error('[orbitService] SGP4 calculation error:', err);
@@ -170,119 +139,99 @@ export function calculatePositionFromTle(tleLine1, tleLine2, date = new Date()) 
 }
 
 /**
- * Calculates current orbit position for a satellite record with full freshness, source tracking, and sanity verification.
+ * Calculates current orbit position for a satellite database record.
  */
-export async function calculateCurrentOrbit(sat) {
-  if (sat.orbital_source === 'REAL' && sat.norad_id) {
-    let tle1 = sat.tle_line1;
-    let tle2 = sat.tle_line2;
-    let data_source = sat.tle_line1 ? 'CACHED_TLE' : 'LOCAL_FALLBACK';
+export async function calculateCurrentOrbit(sat, timestamp = new Date()) {
+  if (sat && sat.tle_line1 && sat.tle_line2) {
+    const freshnessInfo = evaluateTleFreshness(sat.tle_line1, timestamp);
+    const pos = calculatePositionFromTle(sat.tle_line1, sat.tle_line2, timestamp);
+    const isSanityPlausible = pos ? validateOrbitalSanity(pos.latitude, pos.longitude, pos.altitude_km, pos.velocity_kms) : false;
+    const isReliable = freshnessInfo.reliable && isSanityPlausible;
 
-    // Fetch fresh TLE if missing or older than 6 hours
-    const lastUpdate = sat.tle_updated_at ? new Date(sat.tle_updated_at).getTime() : 0;
-    const isStaleInDb = (Date.now() - lastUpdate) > 6 * 60 * 60 * 1000;
-
-    if (!tle1 || !tle2 || isStaleInDb) {
-      const freshTle = await fetchTleForNoradId(sat.norad_id);
-      if (freshTle) {
-        tle1 = freshTle.line1;
-        tle2 = freshTle.line2;
-        data_source = freshTle.source; // 'CELESTRAK_LIVE' or 'LOCAL_FALLBACK'
-        
-        // Only update tle_updated_at in DB when retrieved from live source
-        if (freshTle.source === 'CELESTRAK_LIVE') {
-          await query(
-            'UPDATE satellites SET tle_line1=$1, tle_line2=$2, tle_updated_at=now() WHERE satellite_id=$3',
-            [tle1, tle2, sat.satellite_id]
-          );
-        }
-      }
-    }
-
-    if (tle1 && tle2) {
-      const freshnessInfo = evaluateTleFreshness(tle1);
-      
-      // If TLE age > 14 days, refine data_source label
-      if (!freshnessInfo.reliable) {
-        data_source = data_source === 'LOCAL_FALLBACK' ? 'STALE_FALLBACK' : 'STALE_CACHED';
-      }
-
-      const pos = calculatePositionFromTle(tle1, tle2);
-      const isSanityPlausible = pos ? validateOrbitalSanity(pos.latitude, pos.longitude, pos.altitude_km, pos.velocity_kms) : false;
-      const isReliable = freshnessInfo.reliable && isSanityPlausible;
-
+    if (pos && isSanityPlausible) {
       return {
-        satellite_id: sat.satellite_id,
-        code: sat.code,
-        name: sat.name,
+        satellite_id: sat.satellite_id || sat.id,
         norad_id: sat.norad_id,
-        orbital_source: 'REAL',
-        data_source,
+        name: sat.name,
+        category: sat.category,
+        latitude: pos.latitude,
+        longitude: pos.longitude,
+        altitude_km: pos.altitude_km,
+        velocity_km_s: pos.velocity_km_s,
+        velocity_kms: pos.velocity_kms,
+        timestamp: timestamp.toISOString(),
         tle_epoch: freshnessInfo.tle_epoch,
-        tle_age_hours: freshnessInfo.tle_age_hours,
-        tle_age_days: freshnessInfo.tle_age_days,
         freshness: freshnessInfo.freshness,
         reliable: isReliable,
-        orbitDataAvailable: isReliable && pos !== null,
-        latitude: pos ? pos.latitude : 0,
-        longitude: pos ? pos.longitude : 0,
-        altitude_km: pos ? pos.altitude_km : 408,
-        velocity_kms: pos ? pos.velocity_kms : 7.66,
-        recorded_at: new Date().toISOString()
+        source: 'CelesTrak TLE + SGP4'
       };
     }
   }
 
-  // Simulated orbital calculation (for fictional satellites)
-  const t = Date.now() / 1000;
-  const speed = sat.code === 'SAT-02' ? 0.002 : sat.code === 'SAT-03' ? 0.0015 : 0.0018;
-  const offset = (sat.code.charCodeAt(5) || 1) * 35;
-  const lat = Math.sin(t * speed + offset) * 51.6;
-  const lon = ((t * speed * 20 + offset * 5) % 360) - 180;
-  const alt = 408 + Math.cos(t * speed) * 12;
-  const vel = 7.66 + Math.sin(t * speed) * 0.05;
-
   return {
-    satellite_id: sat.satellite_id,
-    code: sat.code,
-    name: sat.name,
-    norad_id: sat.norad_id || null,
-    orbital_source: 'SIMULATED',
-    data_source: 'SIMULATED_ENGINE',
-    tle_epoch: null,
-    tle_age_hours: null,
-    tle_age_days: null,
-    freshness: 'SIMULATED',
-    reliable: true,
-    orbitDataAvailable: true,
-    latitude: Number(lat.toFixed(3)),
-    longitude: Number(lon.toFixed(3)),
-    altitude_km: Number(alt.toFixed(2)),
-    velocity_kms: Number(vel.toFixed(2)),
-    recorded_at: new Date().toISOString()
+    satellite_id: sat ? (sat.satellite_id || sat.id) : null,
+    norad_id: sat ? sat.norad_id : null,
+    name: sat ? sat.name : 'Unknown',
+    category: sat ? sat.category : null,
+    latitude: null,
+    longitude: null,
+    altitude_km: null,
+    velocity_km_s: null,
+    velocity_kms: null,
+    timestamp: timestamp.toISOString(),
+    freshness: 'UNAVAILABLE',
+    reliable: false,
+    source: 'SGP4 Propagation Failed'
   };
 }
 
 /**
- * Calculates and inserts an orbit snapshot into orbit_history in PostgreSQL.
+ * Background Snapshot Process:
+ * Takes position snapshots ONLY for tracked/demo satellites (ISS + max 4 demo station satellites)
+ * every 5 minutes and writes to orbit_history.
+ * Also enforces a 7-day retention policy to prevent database bloat.
  */
-export async function recordOrbitSnapshot(satId) {
-  const sat = await query('SELECT * FROM satellites WHERE satellite_id = $1 OR code = $1', [satId]);
-  if (!sat.rowCount) return null;
+export async function recordOrbitSnapshotProcess() {
+  try {
+    // 1. Select tracked set: ISS (NORAD 25544) + maximum 4 additional demo satellites
+    const satsResult = await query(`
+      (SELECT * FROM satellites WHERE norad_id = 25544 LIMIT 1)
+      UNION ALL
+      (SELECT * FROM satellites WHERE (norad_id IS NULL OR norad_id <> 25544) AND category = 'station' AND tle_line1 IS NOT NULL ORDER BY norad_id LIMIT 4)
+    `);
 
-  const satRecord = sat.rows[0];
-  const orbit = await calculateCurrentOrbit(satRecord);
+    if (satsResult.rowCount > 0) {
+      const now = new Date();
+      const rowsToInsert = [];
+      const params = [];
 
-  if (!orbit.orbitDataAvailable) {
-    console.warn(`[orbitService] Skipping orbit snapshot for ${satRecord.code}: TLE is stale/unreliable`);
-    return null;
+      let paramIdx = 1;
+      for (const sat of satsResult.rows) {
+        const pos = await calculateCurrentOrbit(sat, now);
+        if (pos && pos.latitude !== null) {
+          rowsToInsert.push(
+            `($${paramIdx}, $${paramIdx + 1}, $${paramIdx + 2}, $${paramIdx + 3}, $${paramIdx + 4}, $${paramIdx + 5}, 'REAL')`
+          );
+          params.push(sat.satellite_id, pos.latitude, pos.longitude, pos.altitude_km, pos.velocity_kms, now.toISOString());
+          paramIdx += 6;
+        }
+      }
+
+      if (rowsToInsert.length > 0) {
+        const sql = `
+          INSERT INTO orbit_history (satellite_id, latitude, longitude, altitude_km, velocity_kms, recorded_at, source)
+          VALUES ${rowsToInsert.join(', ')}
+        `;
+        await query(sql, params);
+      }
+    }
+
+    // 2. Retention Policy Cleanup: Delete orbit_history entries older than 7 days
+    await query(`DELETE FROM orbit_history WHERE recorded_at < NOW() - INTERVAL '7 days'`);
+
+    return satsResult.rowCount;
+  } catch (err) {
+    console.error('[orbitService] Snapshot process error:', err.message);
+    return 0;
   }
-
-  const inserted = await query(
-    `INSERT INTO orbit_history(satellite_id, latitude, longitude, altitude_km, velocity_kms, source)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [satRecord.satellite_id, orbit.latitude, orbit.longitude, orbit.altitude_km, orbit.velocity_kms, orbit.orbital_source]
-  );
-
-  return inserted.rows[0];
 }

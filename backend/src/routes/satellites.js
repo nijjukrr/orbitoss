@@ -1,132 +1,167 @@
 import { Router } from 'express';
-import { db, query } from '../db.js';
-import { calculateCurrentOrbit, recordOrbitSnapshot } from '../services/orbitService.js';
+import { query } from '../db.js';
+import { syncCelestrakCatalog } from '../services/celestrakService.js';
+import { calculateCurrentOrbit, recordOrbitSnapshotProcess } from '../services/orbitService.js';
 
 const router = Router();
-const allowedCommands = new Set(['SAFE_MODE', 'RESTART_PAYLOAD', 'ORIENTATION_CHANGE', 'REQUEST_TELEMETRY']);
 
-router.get('/', async (_req, res, next) => {
+/**
+ * Helper to resolve satellite by ID, NORAD ID, or Code.
+ */
+async function findSatellite(param) {
+  if (!param) return null;
+
+  // Check if integer (norad_id)
+  const isInt = /^\d+$/.test(param);
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
+
+  let res;
+  if (isInt) {
+    res = await query('SELECT * FROM satellites WHERE norad_id = $1 OR code = $1', [parseInt(param, 10)]);
+  } else if (isUuid) {
+    res = await query('SELECT * FROM satellites WHERE satellite_id = $1', [param]);
+  } else {
+    res = await query('SELECT * FROM satellites WHERE code = $1 OR UPPER(name) = $2', [param.toUpperCase(), param.toUpperCase()]);
+  }
+
+  return res.rowCount ? res.rows[0] : null;
+}
+
+/**
+ * POST /api/satellites/sync
+ * Syncs configured CelesTrak satellite groups into PostgreSQL.
+ */
+router.post('/sync', async (_req, res, next) => {
   try {
-    const result = await query('SELECT * FROM v_latest_satellite_status ORDER BY code');
-    res.json({ success: true, data: result.rows });
-  } catch (error) { next(error); }
+    const result = await syncCelestrakCatalog();
+    // Run an immediate orbit snapshot after sync to record orbit history
+    await recordOrbitSnapshotProcess();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
 });
 
+/**
+ * GET /api/satellites
+ * List satellites with optional ?category= and ?search= filters.
+ */
+router.get('/', async (req, res, next) => {
+  try {
+    const { category, search } = req.query;
+
+    let sql = 'SELECT satellite_id, satellite_id AS id, norad_id, name, category, status, last_tle_sync, tle_epoch, tle_line1, tle_line2, created_at, updated_at FROM satellites WHERE 1=1';
+    const params = [];
+
+    if (category) {
+      params.push(category.toLowerCase());
+      sql += ` AND LOWER(category) = $${params.length}`;
+    }
+
+    if (search) {
+      params.push(`%${search}%`);
+      sql += ` AND (name ILIKE $${params.length} OR code ILIKE $${params.length} OR norad_id::text ILIKE $${params.length})`;
+    }
+
+    sql += ' ORDER BY CASE WHEN category = \'station\' THEN 1 WHEN norad_id = 25544 THEN 2 ELSE 3 END, name ASC';
+
+    const result = await query(sql, params);
+    res.json({ success: true, count: result.rowCount, data: result.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/satellites/:id
+ * Retrieve basic satellite details.
+ */
 router.get('/:id', async (req, res, next) => {
   try {
-    const param = req.params.id.toUpperCase();
-    const satellite = await query(
-      'SELECT * FROM v_latest_satellite_status WHERE code = $1 OR satellite_id::text = $1',
-      [param]
-    );
-    if (!satellite.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
-    const satId = satellite.rows[0].satellite_id;
-
-    const [history, components, orbitHistory, liveOrbit] = await Promise.all([
-      query(`SELECT recorded_at, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct
-             FROM satellite_telemetry WHERE satellite_id = $1 ORDER BY recorded_at ASC LIMIT 50`, [satId]),
-      query('SELECT name, status FROM satellite_components WHERE satellite_id = $1 ORDER BY name', [satId]),
-      query('SELECT recorded_at, latitude, longitude, altitude_km, velocity_kms, source FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 30', [satId]),
-      calculateCurrentOrbit(satellite.rows[0])
-    ]);
+    const sat = await findSatellite(req.params.id);
+    if (!sat) {
+      return res.status(404).json({ success: false, error: 'Satellite not found' });
+    }
 
     res.json({
       success: true,
       data: {
-        satellite: satellite.rows[0],
-        telemetry: history.rows,
-        components: components.rows,
-        orbit: liveOrbit,
-        orbitHistory: orbitHistory.rows
+        ...sat,
+        id: sat.satellite_id
       }
     });
-  } catch (error) { next(error); }
-});
-
-router.get('/:id/orbit', async (req, res, next) => {
-  try {
-    const param = req.params.id.toUpperCase();
-    const sat = await query('SELECT * FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
-    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
-
-    const orbit = await calculateCurrentOrbit(sat.rows[0]);
-    res.json({ success: true, data: orbit });
-  } catch (error) { next(error); }
-});
-
-router.get('/:id/orbit-history', async (req, res, next) => {
-  try {
-    const param = req.params.id.toUpperCase();
-    const sat = await query('SELECT satellite_id FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
-    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
-
-    const orbit = await query(
-      `SELECT recorded_at, latitude, longitude, altitude_km, velocity_kms, source
-       FROM orbit_history WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT 50`,
-      [sat.rows[0].satellite_id]
-    );
-    res.json({ success: true, data: orbit.rows });
-  } catch (error) { next(error); }
-});
-
-router.get('/:id/telemetry', async (req, res, next) => {
-  try {
-    const param = req.params.id.toUpperCase();
-    const sat = await query('SELECT satellite_id FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
-    if (!sat.rowCount) return res.status(404).json({ success: false, error: 'Satellite not found' });
-    
-    const limit = Math.min(200, parseInt(req.query.limit || '50', 10));
-    const telemetry = await query(
-      `SELECT recorded_at, altitude_km, velocity_kms, battery_pct, solar_output_kw, temperature_c, signal_pct
-       FROM satellite_telemetry WHERE satellite_id = $1 ORDER BY recorded_at DESC LIMIT $2`,
-      [sat.rows[0].satellite_id, limit]
-    );
-    res.json({ success: true, data: telemetry.rows });
-  } catch (error) { next(error); }
-});
-
-router.post('/:id/commands', async (req, res, next) => {
-  const { commandType, parameters = {} } = req.body;
-  if (!allowedCommands.has(commandType)) {
-    return res.status(400).json({ success: false, error: 'Provide a valid commandType' });
+  } catch (error) {
+    next(error);
   }
+});
 
-  const param = req.params.id.toUpperCase();
-  const client = await db.connect();
+/**
+ * GET /api/satellites/:id/position
+ * Calculates current real-time satellite position using satellite.js SGP4 propagation.
+ */
+router.get('/:id/position', async (req, res, next) => {
   try {
-    await client.query('BEGIN');
-    const sat = await client.query('SELECT satellite_id, code FROM satellites WHERE code = $1 OR satellite_id::text = $1', [param]);
-    if (!sat.rowCount) {
-      await client.query('ROLLBACK');
+    const sat = await findSatellite(req.params.id);
+    if (!sat) {
       return res.status(404).json({ success: false, error: 'Satellite not found' });
     }
 
-    const operator = await client.query("SELECT user_id FROM users WHERE email='maya@orbitops.demo'");
-    const userId = operator.rowCount ? operator.rows[0].user_id : null;
-
-    const command = await client.query(
-      `INSERT INTO commands(satellite_id, created_by, command_type, parameters)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [sat.rows[0].satellite_id, userId, commandType, parameters]
-    );
-
-    await client.query(
-      `INSERT INTO command_logs(command_id, status, note) VALUES ($1, 'CREATED', 'Operator created command via satellite endpoint')`,
-      [command.rows[0].command_id]
-    );
-
-    await client.query(
-      'INSERT INTO audit_logs(user_id, action, entity_type, entity_id, details) VALUES ($1, $2, $3, $4, $5)',
-      [userId, 'CREATE_COMMAND', 'COMMAND', command.rows[0].command_id, JSON.stringify({ satelliteCode: sat.rows[0].code, commandType })]
-    );
-
-    await client.query('COMMIT');
-    res.status(201).json({ success: true, data: command.rows[0] });
+    const position = await calculateCurrentOrbit(sat);
+    res.json(position);
   } catch (error) {
-    await client.query('ROLLBACK');
     next(error);
-  } finally {
-    client.release();
+  }
+});
+
+/**
+ * GET /api/satellites/:id/orbit (Alias for position)
+ */
+router.get('/:id/orbit', async (req, res, next) => {
+  try {
+    const sat = await findSatellite(req.params.id);
+    if (!sat) {
+      return res.status(404).json({ success: false, error: 'Satellite not found' });
+    }
+
+    const position = await calculateCurrentOrbit(sat);
+    res.json({ success: true, data: position });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/satellites/:id/orbit-history
+ * Returns historical position snapshots for the requested satellite.
+ * Optional query parameter ?hours=1|6|24 (Default: 6)
+ */
+router.get('/:id/orbit-history', async (req, res, next) => {
+  try {
+    const sat = await findSatellite(req.params.id);
+    if (!sat) {
+      return res.status(404).json({ success: false, error: 'Satellite not found' });
+    }
+
+    const hours = Math.max(1, Math.min(168, parseInt(req.query.hours || '6', 10)));
+
+    const result = await query(
+      `SELECT recorded_at, latitude, longitude, altitude_km, velocity_kms, velocity_kms AS velocity_km_s, source
+       FROM orbit_history 
+       WHERE satellite_id = $1 AND recorded_at >= NOW() - ($2 || ' hours')::INTERVAL 
+       ORDER BY recorded_at ASC`,
+      [sat.satellite_id, hours]
+    );
+
+    res.json({
+      success: true,
+      satellite_id: sat.satellite_id,
+      norad_id: sat.norad_id,
+      hours: hours,
+      count: result.rowCount,
+      data: result.rows
+    });
+  } catch (error) {
+    next(error);
   }
 });
 

@@ -13,6 +13,8 @@ import crew from './routes/crew.js';
 import experiments from './routes/experiments.js';
 import groundStations from './routes/groundStations.js';
 import orbits from './routes/orbits.js';
+import astronauts from './routes/astronauts.js';
+import { recordOrbitSnapshotProcess } from './services/orbitService.js';
 
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
@@ -49,6 +51,7 @@ app.use('/api/crew', crew);
 app.use('/api/experiments', experiments);
 app.use('/api/ground-stations', groundStations);
 app.use('/api/orbits', orbits);
+app.use('/api/astronauts', astronauts);
 
 app.use((error, _req, res, _next) => {
   console.error(error);
@@ -56,4 +59,16 @@ app.use((error, _req, res, _next) => {
 });
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`ORBITOPS API listening on http://localhost:${port}`));
+app.listen(port, () => {
+  console.log(`ORBITOPS API listening on http://localhost:${port}`);
+  
+  // Set up 5-minute periodic orbit snapshot background timer
+  setInterval(async () => {
+    try {
+      const count = await recordOrbitSnapshotProcess();
+      console.log(`[OrbitSnapshotProcess] Recorded ${count} orbit snapshots at ${new Date().toISOString()}`);
+    } catch (err) {
+      console.error('[OrbitSnapshotProcess] Error:', err);
+    }
+  }, 5 * 60 * 1000);
+});

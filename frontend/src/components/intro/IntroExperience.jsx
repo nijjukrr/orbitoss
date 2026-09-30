@@ -91,7 +91,7 @@ export function IntroExperience({ onEnter }) {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: 'url(/media/nasa/iss_interior.jpg)',
+            backgroundImage: 'url(/media/nasa/iss-interior.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(60%) contrast(105%)',
