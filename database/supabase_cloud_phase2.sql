@@ -1,0 +1,13 @@
+SET search_path = orbitops, public, extensions;
+ALTER TABLE satellites ALTER COLUMN mission_id DROP NOT NULL;
+ALTER TABLE satellites ALTER COLUMN purpose DROP NOT NULL;
+ALTER TABLE satellites ALTER COLUMN launched_on DROP NOT NULL;
+ALTER TABLE satellites ALTER COLUMN code DROP NOT NULL;
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS tle_epoch TIMESTAMPTZ;
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS tle_source TEXT DEFAULT 'CELESTRAK';
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS last_tle_sync TIMESTAMPTZ;
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE satellites ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+UPDATE satellites SET category = 'station' WHERE norad_id = 25544;
+CREATE INDEX IF NOT EXISTS idx_orbit_history_sat_rec ON orbit_history(satellite_id, recorded_at DESC);
