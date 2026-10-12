@@ -186,6 +186,37 @@ export async function calculateCurrentOrbit(sat, timestamp = new Date()) {
 }
 
 /**
+ * Calculates and stores one snapshot for a single satellite.
+ */
+export async function recordOrbitSnapshot(satelliteId) {
+  const result = await query(
+    'SELECT * FROM satellites WHERE satellite_id = $1 LIMIT 1',
+    [satelliteId]
+  );
+  const sat = result.rows[0];
+  if (!sat) return null;
+
+  const snapshot = await calculateCurrentOrbit(sat);
+  if (snapshot.latitude === null) return null;
+
+  await query(
+    `INSERT INTO orbit_history
+      (satellite_id, latitude, longitude, altitude_km, velocity_kms, recorded_at, source)
+     VALUES ($1, $2, $3, $4, $5, $6, 'REAL')`,
+    [
+      sat.satellite_id,
+      snapshot.latitude,
+      snapshot.longitude,
+      snapshot.altitude_km,
+      snapshot.velocity_kms,
+      snapshot.timestamp
+    ]
+  );
+
+  return snapshot;
+}
+
+/**
  * Background Snapshot Process:
  * Takes position snapshots ONLY for tracked/demo satellites (ISS + max 4 demo station satellites)
  * every 5 minutes and writes to orbit_history.
