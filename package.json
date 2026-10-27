@@ -4,6 +4,8 @@
   "private": true,
   "description": "ORBITOPS Mission Control - Satellite & Space Station Operations Management System",
   "scripts": {
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend run build",
     "db:setup": "npm --prefix backend run db:setup",
     "db:reset": "npm --prefix backend run db:reset",
     "backend": "npm --prefix backend run dev",
